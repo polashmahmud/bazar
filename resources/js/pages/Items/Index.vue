@@ -9,9 +9,6 @@
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               🛒 Grocery Items
             </h1>
-            <span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
-              {{ formatMonth(selectedMonth) }}
-            </span>
           </div>
 
           <!-- Action Buttons -->
@@ -78,26 +75,12 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <!-- Month Selector -->
-      <div class="mb-6">
-        <select 
-          v-model="selectedMonth" 
-          @change="changeMonth"
-          class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option v-for="month in availableMonths" :key="month.value" :value="month.value">
-            {{ month.label }}
-          </option>
-        </select>
-      </div>
-
       <!-- Items Grid -->
       <div v-if="allItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         <div
           v-for="item in allItems"
           :key="('offline_id' in item ? item.offline_id : item.id)"
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
-          :class="{ 'opacity-60': item.is_done, 'ring-2 ring-yellow-400 dark:ring-yellow-600': 'offline_id' in item && item.needs_sync }"
         >
           <!-- Product Image -->
           <div class="aspect-square bg-gray-100 dark:bg-gray-700 relative">
@@ -110,86 +93,24 @@
             <div v-else class="w-full h-full flex items-center justify-center">
               <div class="text-6xl">📦</div>
             </div>
-            
-            <!-- Status Indicators -->
-            <div class="absolute top-3 right-3 flex space-x-2">
-              <!-- Done Status -->
-              <div
-                v-if="item.is_done"
-                class="bg-green-500 text-white rounded-full p-2"
-              >
-                <CheckIcon class="h-4 w-4" />
-              </div>
-              
-              <!-- Offline Status -->
-              <div
-                v-if="'offline_id' in item && item.needs_sync"
-                class="bg-yellow-500 text-white rounded-full p-2"
-                title="Pending sync"
-              >
-                <CloudArrowUpIcon class="h-4 w-4" />
-              </div>
-            </div>
           </div>
 
           <!-- Product Info -->
           <div class="p-4">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1" :class="{ 'line-through': item.is_done }">
+            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-4 text-center">
               {{ item.name }}
             </h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              {{ item.quantity }} {{ item.quantity_unit }}
-            </p>
-            <div class="flex items-center justify-between">
-              <span class="text-xl font-bold text-gray-900 dark:text-white">
-                ${{ Number(item.price).toFixed(2) }}
-              </span>
-              <div class="flex space-x-2">
-                <!-- Add to Cart Button -->
-                <button
-                  v-if="!isInCart(item)"
-                  @click="addToCart(item)"
-                  class="bg-green-500 hover:bg-green-600 text-white rounded-full p-2 transition-colors"
-                  title="Add to Cart"
-                >
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
-                  </svg>
-                </button>
-                
-                <!-- In Cart Indicator -->
-                <button
-                  v-else
-                  @click="removeFromCart(item)"
-                  class="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-2 transition-colors"
-                  title="Remove from Cart"
-                >
-                  <CheckIcon class="h-5 w-5" />
-                </button>
-
-                <!-- Toggle Done Button -->
-                <button
-                  @click="toggleDone(item)"
-                  class="rounded-full p-2 transition-colors"
-                  :class="item.is_done 
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                    : 'bg-gray-800 dark:bg-gray-600 hover:bg-gray-700 dark:hover:bg-gray-500 text-white'"
-                  title="Toggle Done"
-                >
-                  <CheckIcon v-if="item.is_done" class="h-5 w-5" />
-                  <PlusIcon v-else class="h-5 w-5" />
-                </button>
-                
-                <!-- Delete Button -->
-                <button
-                  @click="deleteItem(item)"
-                  class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors"
-                  title="Delete item"
-                >
-                  <TrashIcon class="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            
+            <!-- Add to Cart Button -->
+            <button
+              @click="addToCart(item)"
+              class="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-3 px-4 transition-colors font-medium flex items-center justify-center space-x-2"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
+              </svg>
+              <span>Add to Cart</span>
+            </button>
           </div>
         </div>
       </div>
@@ -201,7 +122,7 @@
           No items in your grocery list
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-          Start by adding some items to your shopping list for {{ formatMonth(selectedMonth) }}
+          Start by adding some items to your shopping list
         </p>
         <button
           @click="showAddModal = true"
@@ -513,13 +434,11 @@ const CloudArrowUpIcon = { template: '<svg class="w-4 h-4" fill="none" viewBox="
 // Props from Laravel controller
 interface Props {
   items: Item[]
-  currentMonth: string
 }
 
 const props = defineProps<Props>()
 
 // Reactive state
-const selectedMonth = ref(props.currentMonth)
 const allItems = ref<(Item | OfflineItem)[]>([])
 const showAddModal = ref(false)
 const showCartModal = ref(false)
@@ -537,19 +456,6 @@ const form = ref({
 })
 
 // Computed properties
-const availableMonths = computed(() => {
-  const months = []
-  const now = new Date()
-  
-  for (let i = -2; i <= 6; i++) {
-    const date = new Date(now.getFullYear(), now.getMonth() + i, 1)
-    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    const label = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-    months.push({ value, label })
-  }
-  
-  return months
-})
 
 const cartTotal = computed(() => {
   return cart.value.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0)
@@ -560,18 +466,12 @@ const cartItemCount = computed(() => {
 })
 
 // Methods
-const formatMonth = (month: string) => {
-  const [year, monthNum] = month.split('-')
-  const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1)
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-}
-
 const loadItems = async () => {
   // Load server items
   const serverItems = props.items
 
   // Load offline items
-  const offlineItems = await offlineSyncService.getItemsForMonth(selectedMonth.value)
+  const offlineItems = await offlineSyncService.getAllOffline()
   
   // Combine both, avoiding duplicates
   allItems.value = [...serverItems, ...offlineItems]
@@ -603,12 +503,15 @@ const addItem = async () => {
   isSubmitting.value = true
   
   try {
+    const currentDate = new Date()
+    const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+    
     const itemData = {
       ...form.value,
       quantity: 1, // Default quantity
       quantity_unit: 'পিস', // Default unit
       price: 0, // Default price
-      month: selectedMonth.value,
+      month: currentMonth,
       is_done: false
     }
 
@@ -695,10 +598,6 @@ const deleteItem = async (item: Item | OfflineItem) => {
       alert('Failed to delete item. Please try again.')
     }
   }
-}
-
-const changeMonth = () => {
-  router.get(items.index().url, { month: selectedMonth.value })
 }
 
 const resetForm = () => {

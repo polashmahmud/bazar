@@ -14,16 +14,10 @@ class ItemController extends Controller
      */
     public function index(Request $request): Response
     {
-        $month = $request->get('month', now()->format('Y-m'));
-        
-        $items = auth()->user()->items()
-            ->forMonth($month)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $items = Item::orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Items/Index', [
             'items' => $items,
-            'currentMonth' => $month,
         ]);
     }
 
