@@ -24,7 +24,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     Route::post('/items/bulk-sync', [ItemController::class, 'bulkSync'])->name('items.bulk-sync');
     
-    // Cart History routes
+    // Cart routes
+    Route::get('/cart', function() {
+        return Inertia::render('Cart/Index');
+    })->name('cart.index');
+    
+    // Cart History API routes
     Route::post('/cart/add', [CartHistoryController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/{cartId}', [CartHistoryController::class, 'updateCartItem'])->name('cart.update');
     Route::post('/cart/{cartId}/done', [CartHistoryController::class, 'markAsDone'])->name('cart.done');
@@ -36,6 +41,10 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('Debug/CartItemRelations');
     })->name('debug.cart-relations');
 });
+
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
+require __DIR__.'/test.php';
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

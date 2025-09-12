@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 pb-16 sm:pb-0">
     <!-- Header -->
     <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,15 +26,15 @@
             <!-- Theme Toggle -->
             <AppearanceTabs />
 
-            <!-- Cart Button -->
+            <!-- Cart Button (hidden on mobile) -->
             <button
-              @click="showCartModal = true"
-              class="relative flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+              @click="goToCart"
+              class="relative hidden sm:flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
             >
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
               </svg>
-              <span class="hidden sm:block">Cart</span>
+              <span>Cart</span>
               <span v-if="cartItemCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {{ cartItemCount }}
               </span>
@@ -49,24 +49,24 @@
               <span class="hidden sm:block">Add Item</span>
             </button>
 
-            <!-- Dashboard Button -->
+            <!-- Dashboard Button (hidden on mobile) -->
             <button
               @click="goToDashboard"
-              class="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+              class="hidden sm:flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
             >
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10" />
               </svg>
-              <span class="hidden sm:block">Dashboard</span>
+              <span>Dashboard</span>
             </button>
 
-            <!-- Logout Button -->
+            <!-- Logout Button (hidden on mobile) -->
             <button
               @click="logout"
-              class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+              class="hidden sm:flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
             >
               <ArrowRightOnRectangleIcon class="h-5 w-5" />
-              <span class="hidden sm:block">Logout</span>
+              <span>Logout</span>
             </button>
           </div>
         </div>
@@ -76,11 +76,11 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Items Grid -->
-      <div v-if="filteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div v-if="filteredItems.length > 0" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
         <div
           v-for="item in filteredItems"
           :key="('offline_id' in item ? item.offline_id : item.id)"
-          class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
+          class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
         >
           <!-- Product Image -->
           <div class="aspect-square bg-gray-100 dark:bg-gray-700 relative">
@@ -96,17 +96,17 @@
           </div>
 
           <!-- Product Info -->
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-4 text-center">
+          <div class="p-3 sm:p-4">
+            <h3 class="font-semibold text-gray-900 dark:text-white text-sm sm:text-lg mb-3 sm:mb-4 text-center truncate">
               {{ item.name }}
             </h3>
             
             <!-- Add to Cart Button -->
             <button
               @click="addToCart(item)"
-              class="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-3 px-4 transition-colors font-medium flex items-center justify-center space-x-2"
+              class="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2 sm:py-3 px-4 transition-colors font-medium flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
               </svg>
               <span>Add to Cart</span>
@@ -217,201 +217,8 @@
       </div>
     </div>
 
-    <!-- Cart Modal -->
-    <div
-      v-if="showCartModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      @click.self="showCartModal = false"
-    >
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <!-- Cart Header -->
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-              🛒 Shopping Cart ({{ cartItemCount }} items)
-            </h2>
-            <button
-              @click="showCartModal = false"
-              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            >
-              <XMarkIcon class="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Cart Items -->
-        <div class="max-h-96 overflow-y-auto">
-          <div v-if="cart.length === 0" class="p-8 text-center">
-            <div class="text-6xl mb-4">🛒</div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Your cart is empty
-            </h3>
-            <p class="text-gray-500 dark:text-gray-400">
-              Add some items to your cart to get started
-            </p>
-          </div>
-
-          <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div
-              v-for="item in cart"
-              :key="item.cart_id"
-              class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
-              <div class="flex items-start space-x-4">
-                <!-- Item Image -->
-                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
-                  <img
-                    v-if="(item as any).image"
-                    :src="(item as any).image"
-                    :alt="item.name"
-                    class="w-full h-full object-cover rounded-lg"
-                  />
-                  <div v-else class="w-full h-full flex items-center justify-center">
-                    <div class="text-2xl">📦</div>
-                  </div>
-                </div>
-
-                <!-- Item Details -->
-                <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate mb-2">
-                    {{ item.name }}
-                  </h4>
-                  
-                  <!-- Editable Fields -->
-                  <div v-if="editingCartItem === getCartItemId(item)" class="space-y-2">
-                    <!-- Quantity & Unit -->
-                    <div class="grid grid-cols-2 gap-2">
-                      <input
-                        :value="item.quantity"
-                        @input="updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Quantity"
-                      />
-                      <select
-                        :value="item.quantity_unit"
-                        @change="updateCartItem(item, { quantity_unit: ($event.target as HTMLSelectElement).value })"
-                        class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="কেজি">কেজি</option>
-                        <option value="গ্রাম">গ্রাম</option>
-                        <option value="পিস">পিস</option>
-                        <option value="ডজন">ডজন</option>
-                        <option value="প্যাকেট">প্যাকেট</option>
-                        <option value="বোতল">বোতল</option>
-                        <option value="ব্যাগ">ব্যাগ</option>
-                        <option value="লিটার">লিটার</option>
-                        <option value="মিলি">মিলি</option>
-                        <option value="কাপ">কাপ</option>
-                        <option value="টিন">টিন</option>
-                        <option value="বক্স">বক্স</option>
-                      </select>
-                    </div>
-                    
-                    <!-- Price -->
-                    <input
-                      :value="item.price"
-                      @input="updateCartItem(item, { price: parseFloat(($event.target as HTMLInputElement).value) || 0 })"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="Price (optional)"
-                    />
-                    
-                    <!-- Save/Cancel -->
-                    <div class="flex space-x-2">
-                      <button
-                        @click="editingCartItem = null"
-                        class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
-                      >
-                        Save
-                      </button>
-                      <button
-                        @click="editingCartItem = null"
-                        class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <!-- Display Mode -->
-                  <div v-else class="space-y-1">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ item.quantity }} {{ item.quantity_unit }}
-                    </p>
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">
-                      ${{ Number(item.price).toFixed(2) }}
-                    </p>
-                    <div v-if="item.is_done" class="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
-                      ✅ Done
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col space-y-2">
-                  <!-- Edit Button -->
-                  <button
-                    v-if="editingCartItem !== getCartItemId(item)"
-                    @click="editingCartItem = getCartItemId(item)"
-                    class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors text-sm"
-                    title="Edit item"
-                  >
-                    ✏️
-                  </button>
-                  
-                  <!-- Mark as Done Button -->
-                  <button
-                    v-if="!item.is_done && editingCartItem !== getCartItemId(item)"
-                    @click="markCartItemAsDone(item)"
-                    class="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors text-sm"
-                    title="Mark as done"
-                  >
-                    ✅
-                  </button>
-                  
-                  <!-- Remove Button -->
-                  <button
-                    @click="removeFromCart(item)"
-                    class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                    title="Remove from cart"
-                  >
-                    <TrashIcon class="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cart Footer -->
-        <div v-if="cart.length > 0" class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-lg font-semibold text-gray-900 dark:text-white">
-              Total: ${{ cartTotal.toFixed(2) }}
-            </span>
-            <div class="flex space-x-3">
-              <button
-                @click="clearCart"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-              >
-                Clear Cart
-              </button>
-              <button
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
-                @click="showCartModal = false"
-              >
-                Continue Shopping
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Mobile Navigation Bar -->
+    <MobileNavBar :cartCount="cartItemCount" />
   </div>
 </template>
 
@@ -420,23 +227,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
 import AppearanceTabs from '@/components/AppearanceTabs.vue'
+import MobileNavBar from '@/components/MobileNavBar.vue'
 import { offlineSyncService, type Item, type OfflineItem } from '@/services/offlineSync'
-import items from '@/routes/items'
 
 // Define icons as simple components
 const PlusIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>' }
-const CheckIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' }
-const TrashIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>' }
 const XMarkIcon = { template: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>' }
 const ArrowRightOnRectangleIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>' }
-const CloudArrowUpIcon = { template: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>' }
-
-// Cart item interface - extends Item/OfflineItem with unique cart ID
-interface CartItem extends Item {
-  cart_id: string
-  offline_id?: string
-  needs_sync?: boolean
-}
 
 // Props from Laravel controller
 interface Props {
@@ -448,13 +245,11 @@ const props = defineProps<Props>()
 // Reactive state
 const allItems = ref<(Item | OfflineItem)[]>([])
 const showAddModal = ref(false)
-const showCartModal = ref(false)
 const isSubmitting = ref(false)
 const isOnline = ref(navigator.onLine)
 const syncStatus = ref({ pendingCount: 0, isOnline: true })
 const imageInput = ref<HTMLInputElement>()
-const cart = ref<CartItem[]>([])  // Shopping cart with unique cart IDs
-const editingCartItem = ref<string | null>(null) // For editing cart items
+const cartItemCount = ref(0)
 
 // Form data
 const form = ref({
@@ -463,16 +258,6 @@ const form = ref({
 })
 
 // Computed properties
-
-const cartTotal = computed(() => {
-  return cart.value.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0)
-})
-
-const cartItemCount = computed(() => {
-  return cart.value.length
-})
-
-// Filter out items that are already marked as done
 const filteredItems = computed(() => {
   return allItems.value.filter(item => !item.is_done)
 })
@@ -489,19 +274,13 @@ const loadItems = async () => {
   allItems.value = [...serverItems, ...offlineItems]
 }
 
-const loadActiveCartItems = async () => {
+const loadCartCount = async () => {
   try {
     const response = await axios.get('/cart/active')
-    const serverCartItems = response.data
-    
-    // Transform server cart items to match CartItem interface
-    cart.value = serverCartItems.map((item: any) => ({
-      ...item,
-      id: item.item_id // Map item_id to id for compatibility
-    }))
+    cartItemCount.value = response.data.length
   } catch (error) {
-    console.warn('Failed to load cart items from server:', error)
-    cart.value = []
+    console.error('Failed to load cart count:', error)
+    cartItemCount.value = 0
   }
 }
 
@@ -543,12 +322,9 @@ const addItem = async () => {
       is_done: false
     }
 
-    console.log('Adding item:', { isOnline: isOnline.value, itemData })
-
     if (isOnline.value) {
       // Try to save to server
       try {
-        console.log('Attempting server save...')
         const response = await axios.post('/items', itemData, {
           headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -557,24 +333,15 @@ const addItem = async () => {
           }
         })
         
-        console.log('Server response:', response.data)
-        
         if (response.data.success) {
           // Add to local list
           allItems.value.unshift(response.data.item)
           resetForm()
           showAddModal.value = false
-          console.log('Item saved to server successfully')
         }
       } catch (error) {
         // If server fails, save offline
-        console.error('Server save failed:', {
-          message: (error as any).message,
-          response: (error as any).response?.data,
-          status: (error as any).response?.status,
-          statusText: (error as any).response?.statusText
-        })
-        console.log('Falling back to offline save...')
+        console.error('Server save failed:', error)
         
         const offlineItem = await offlineSyncService.saveOffline(itemData)
         allItems.value.unshift(offlineItem)
@@ -584,7 +351,6 @@ const addItem = async () => {
       }
     } else {
       // Save offline
-      console.log('Saving offline (device offline)...')
       const offlineItem = await offlineSyncService.saveOffline(itemData)
       allItems.value.unshift(offlineItem)
       resetForm()
@@ -631,11 +397,6 @@ const resetForm = () => {
   }
 }
 
-const handleOnlineStatusChange = () => {
-  isOnline.value = navigator.onLine
-  updateSyncStatus()
-}
-
 const addToCart = async (item: Item | OfflineItem) => {
   const currentDate = new Date()
   const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
@@ -653,95 +414,29 @@ const addToCart = async (item: Item | OfflineItem) => {
     })
     
     if (response.data.success) {
-      // Add to local cart
-      const cartItem: CartItem = {
-        ...item,
-        cart_id: cartId,
-        quantity: 1,
-        quantity_unit: 'পিস',
-        price: 0
-      }
+      // Update cart count
+      cartItemCount.value++
       
-      cart.value.push(cartItem)
+      // Show confirmation
+      alert('Item added to cart successfully!')
     }
   } catch (error) {
-    // Fallback to local storage if server fails
-    const cartItem: CartItem = {
-      ...item,
-      cart_id: cartId,
-      quantity: 1,
-      quantity_unit: 'পিস',
-      price: 0
-    }
-    
-    cart.value.push(cartItem)
-    console.warn('Failed to save to server, saved locally:', error)
+    console.error('Failed to add to cart:', error)
+    alert('Failed to add item to cart. Please try again.')
   }
 }
 
-const removeFromCart = async (cartItem: CartItem) => {
-  try {
-    // Remove from database
-    await axios.delete(`/cart/${cartItem.cart_id}`)
-  } catch (error) {
-    console.warn('Failed to remove from server:', error)
-  }
-  
-  // Remove from local cart
-  cart.value = cart.value.filter(item => item.cart_id !== cartItem.cart_id)
+const handleOnlineStatusChange = () => {
+  isOnline.value = navigator.onLine
+  updateSyncStatus()
 }
 
-const clearCart = () => {
-  cart.value = []
+const goToDashboard = () => {
+  router.get('/dashboard')
 }
 
-const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
-  const index = cart.value.findIndex(cartItem => cartItem.cart_id === item.cart_id)
-
-  if (index !== -1) {
-    // Update locally
-    cart.value[index] = { ...cart.value[index], ...updates }
-    
-    // Update on server
-    try {
-      await axios.put(`/cart/${item.cart_id}`, updates)
-    } catch (error) {
-      console.warn('Failed to update on server:', error)
-    }
-  }
-}
-
-const markCartItemAsDone = async (item: CartItem, price?: number) => {
-  try {
-    // Update price if provided, otherwise ensure we have a valid price
-    const finalPrice = price !== undefined ? price : (item.price > 0 ? item.price : 10)
-    
-    if (finalPrice !== item.price) {
-      await updateCartItem(item, { price: finalPrice })
-      item.price = finalPrice // Update local item
-    }
-    
-    // Mark as done in database
-    const response = await axios.post(`/cart/${item.cart_id}/done`)
-    console.log('Mark as done response:', response.data)
-    
-    // Mark as done locally
-    updateCartItem(item, { is_done: true })
-    
-    // Remove from cart after marking as done
-    cart.value = cart.value.filter(cartItem => cartItem.cart_id !== item.cart_id)
-    
-    // Refresh items list to reflect done status
-    await loadItems()
-  } catch (error) {
-    console.error('Failed to mark as done on server:', error)
-    // Still remove from cart locally
-    cart.value = cart.value.filter(cartItem => cartItem.cart_id !== item.cart_id)
-  }
-}
-
-const getCartItemId = (item: CartItem): string => {
-  return item.cart_id
+const goToCart = () => {
+  router.get('/cart')
 }
 
 const logout = async () => {
@@ -757,18 +452,14 @@ const logout = async () => {
   }
 }
 
-const goToDashboard = () => {
-  router.get('/dashboard')
-}
-
 // Lifecycle
 onMounted(async () => {
   // Setup offline sync
   offlineSyncService.setupAutoSync()
   
-  // Load items and cart
+  // Load items and cart count
   await loadItems()
-  await loadActiveCartItems()
+  await loadCartCount()
   await updateSyncStatus()
   
   // Listen for online/offline events
@@ -786,3 +477,5 @@ onUnmounted(() => {
   window.removeEventListener('offline', handleOnlineStatusChange)
 })
 </script>
+
+
