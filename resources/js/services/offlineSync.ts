@@ -4,9 +4,9 @@ import axios from 'axios'
 export interface Item {
   id?: number
   name: string
-  category: string
-  image?: string
   quantity: number
+  quantity_unit: string
+  image?: string
   price: number
   month: string
   is_done: boolean
@@ -142,9 +142,9 @@ class OfflineSyncService {
       const response = await axios.post('/items/bulk-sync', {
         items: itemsToSync.map(item => ({
           name: item.name,
-          category: item.category,
-          image: item.image,
           quantity: item.quantity,
+          quantity_unit: item.quantity_unit,
+          image: item.image,
           price: item.price,
           month: item.month,
           is_done: item.is_done,

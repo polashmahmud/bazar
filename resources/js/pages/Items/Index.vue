@@ -83,7 +83,7 @@
               class="w-full h-full object-cover"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <div class="text-6xl">{{ getCategoryEmoji(item.category) }}</div>
+              <div class="text-6xl">📦</div>
             </div>
             
             <!-- Status Indicators -->
@@ -113,7 +113,7 @@
               {{ item.name }}
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              {{ item.quantity }} {{ item.category }}
+              {{ item.quantity }} {{ item.quantity_unit }}
             </p>
             <div class="flex items-center justify-between">
               <span class="text-xl font-bold text-gray-900 dark:text-white">
@@ -226,46 +226,47 @@
               />
             </div>
 
-            <!-- Category -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category *
-              </label>
-              <select
-                v-model="form.category"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="">Select Category</option>
-                <option value="Dairy">🥛 Dairy</option>
-                <option value="Meat">🥩 Meat</option>
-                <option value="Vegetables">🥕 Vegetables</option>
-                <option value="Fruits">🍎 Fruits</option>
-                <option value="Grains">🌾 Grains</option>
-                <option value="Beverages">🧃 Beverages</option>
-                <option value="Snacks">🍿 Snacks</option>
-                <option value="Household">🧽 Household</option>
-                <option value="Kg">Kg</option>
-                <option value="Pieces">Pieces</option>
-                <option value="Bottles">Bottles</option>
-                <option value="Other">📦 Other</option>
-              </select>
-            </div>
-
-            <!-- Quantity -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Quantity *
-              </label>
-              <input
-                v-model.number="form.quantity"
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="e.g., 1, 0.5, 24"
-              />
+            <!-- Quantity and Unit -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Quantity *
+                </label>
+                <input
+                  v-model.number="form.quantity"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="e.g., 1, 0.5, 24"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Unit *
+                </label>
+                <select
+                  v-model="form.quantity_unit"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="">Select Unit</option>
+                  <option value="কেজি">কেজি (Kg)</option>
+                  <option value="গ্রাম">গ্রাম (Gm)</option>
+                  <option value="পিস">পিস (Pieces)</option>
+                  <option value="ডজন">ডজন (Dozen)</option>
+                  <option value="প্যাকেট">প্যাকেট (Packet)</option>
+                  <option value="বোতল">বোতল (Bottle)</option>
+                  <option value="ব্যাগ">ব্যাগ (Bag)</option>
+                  <option value="লিটার">লিটার (Liter)</option>
+                  <option value="মিলি">মিলি (ML)</option>
+                  <option value="কাপ">কাপ (Cup)</option>
+                  <option value="টিন">টিন (Can)</option>
+                  <option value="বক্স">বক্স (Box)</option>
+                </select>
+              </div>
             </div>
 
             <!-- Price -->
@@ -344,8 +345,8 @@ const imageInput = ref<HTMLInputElement>()
 // Form data
 const form = ref({
   name: '',
-  category: '',
   quantity: 1,
+  quantity_unit: '',
   price: 0,
   image: ''
 })
@@ -370,24 +371,6 @@ const formatMonth = (month: string) => {
   const [year, monthNum] = month.split('-')
   const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1)
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-}
-
-const getCategoryEmoji = (category: string) => {
-  const emojiMap: Record<string, string> = {
-    'Dairy': '🥛',
-    'Meat': '🥩',
-    'Vegetables': '🥕',
-    'Fruits': '🍎',
-    'Grains': '🌾',
-    'Beverages': '🧃',
-    'Snacks': '🍿',
-    'Household': '🧽',
-    'Kg': '⚖️',
-    'Pieces': '🔢',
-    'Bottles': '🍶',
-    'Other': '📦'
-  }
-  return emojiMap[category] || '📦'
 }
 
 const loadItems = async () => {
@@ -525,8 +508,8 @@ const changeMonth = () => {
 const resetForm = () => {
   form.value = {
     name: '',
-    category: '',
     quantity: 1,
+    quantity_unit: '',
     price: 0,
     image: ''
   }
