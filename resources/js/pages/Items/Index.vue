@@ -263,65 +263,6 @@
               />
             </div>
 
-            <!-- Quantity and Unit -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Quantity *
-                </label>
-                <input
-                  v-model.number="form.quantity"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="e.g., 1, 0.5, 24"
-                />
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Unit *
-                </label>
-                <select
-                  v-model="form.quantity_unit"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="">Select Unit</option>
-                  <option value="কেজি">কেজি (Kg)</option>
-                  <option value="গ্রাম">গ্রাম (Gm)</option>
-                  <option value="পিস">পিস (Pieces)</option>
-                  <option value="ডজন">ডজন (Dozen)</option>
-                  <option value="প্যাকেট">প্যাকেট (Packet)</option>
-                  <option value="বোতল">বোতল (Bottle)</option>
-                  <option value="ব্যাগ">ব্যাগ (Bag)</option>
-                  <option value="লিটার">লিটার (Liter)</option>
-                  <option value="মিলি">মিলি (ML)</option>
-                  <option value="কাপ">কাপ (Cup)</option>
-                  <option value="টিন">টিন (Can)</option>
-                  <option value="বক্স">বক্স (Box)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Price -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Price ($) *
-              </label>
-              <input
-                v-model.number="form.price"
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="e.g., 8.92"
-              />
-            </div>
-
             <!-- Submit Button -->
             <div class="flex space-x-3 pt-4">
               <button
@@ -384,7 +325,7 @@
               :key="('offline_id' in item ? item.offline_id : item.id)"
               class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
             >
-              <div class="flex items-center space-x-4">
+              <div class="flex items-start space-x-4">
                 <!-- Item Image -->
                 <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                   <img
@@ -400,25 +341,116 @@
 
                 <!-- Item Details -->
                 <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate mb-2">
                     {{ item.name }}
                   </h4>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ item.quantity }} {{ item.quantity_unit }}
-                  </p>
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">
-                    ${{ Number(item.price).toFixed(2) }}
-                  </p>
+                  
+                  <!-- Editable Fields -->
+                  <div v-if="editingCartItem === getCartItemId(item)" class="space-y-2">
+                    <!-- Quantity & Unit -->
+                    <div class="grid grid-cols-2 gap-2">
+                      <input
+                        :value="item.quantity"
+                        @input="updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Quantity"
+                      />
+                      <select
+                        :value="item.quantity_unit"
+                        @change="updateCartItem(item, { quantity_unit: ($event.target as HTMLSelectElement).value })"
+                        class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="কেজি">কেজি</option>
+                        <option value="গ্রাম">গ্রাম</option>
+                        <option value="পিস">পিস</option>
+                        <option value="ডজন">ডজন</option>
+                        <option value="প্যাকেট">প্যাকেট</option>
+                        <option value="বোতল">বোতল</option>
+                        <option value="ব্যাগ">ব্যাগ</option>
+                        <option value="লিটার">লিটার</option>
+                        <option value="মিলি">মিলি</option>
+                        <option value="কাপ">কাপ</option>
+                        <option value="টিন">টিন</option>
+                        <option value="বক্স">বক্স</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Price -->
+                    <input
+                      :value="item.price"
+                      @input="updateCartItem(item, { price: parseFloat(($event.target as HTMLInputElement).value) || 0 })"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Price (optional)"
+                    />
+                    
+                    <!-- Save/Cancel -->
+                    <div class="flex space-x-2">
+                      <button
+                        @click="editingCartItem = null"
+                        class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        @click="editingCartItem = null"
+                        class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Display Mode -->
+                  <div v-else class="space-y-1">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ item.quantity }} {{ item.quantity_unit }}
+                    </p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                      ${{ Number(item.price).toFixed(2) }}
+                    </p>
+                    <div v-if="item.is_done" class="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
+                      ✅ Done
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Remove Button -->
-                <button
-                  @click="removeFromCart(item)"
-                  class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                  title="Remove from cart"
-                >
-                  <TrashIcon class="h-5 w-5" />
-                </button>
+                <!-- Action Buttons -->
+                <div class="flex flex-col space-y-2">
+                  <!-- Edit Button -->
+                  <button
+                    v-if="editingCartItem !== getCartItemId(item)"
+                    @click="editingCartItem = getCartItemId(item)"
+                    class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors text-sm"
+                    title="Edit item"
+                  >
+                    ✏️
+                  </button>
+                  
+                  <!-- Mark as Done Button -->
+                  <button
+                    v-if="!item.is_done && editingCartItem !== getCartItemId(item)"
+                    @click="markCartItemAsDone(item)"
+                    class="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors text-sm"
+                    title="Mark as done"
+                  >
+                    ✅
+                  </button>
+                  
+                  <!-- Remove Button -->
+                  <button
+                    @click="removeFromCart(item)"
+                    class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                    title="Remove from cart"
+                  >
+                    <TrashIcon class="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -485,13 +517,11 @@ const isOnline = ref(navigator.onLine)
 const syncStatus = ref({ pendingCount: 0, isOnline: true })
 const imageInput = ref<HTMLInputElement>()
 const cart = ref<(Item | OfflineItem)[]>([])  // Shopping cart
+const editingCartItem = ref<string | null>(null) // For editing cart items
 
 // Form data
 const form = ref({
   name: '',
-  quantity: 1,
-  quantity_unit: '',
-  price: 0,
   image: ''
 })
 
@@ -564,6 +594,9 @@ const addItem = async () => {
   try {
     const itemData = {
       ...form.value,
+      quantity: 1, // Default quantity
+      quantity_unit: 'পিস', // Default unit
+      price: 0, // Default price
       month: selectedMonth.value,
       is_done: false
     }
@@ -660,9 +693,6 @@ const changeMonth = () => {
 const resetForm = () => {
   form.value = {
     name: '',
-    quantity: 1,
-    quantity_unit: '',
-    price: 0,
     image: ''
   }
   if (imageInput.value) {
@@ -715,6 +745,43 @@ const isInCart = (item: Item | OfflineItem): boolean => {
     }
     return false
   })
+}
+
+const updateCartItem = (item: Item | OfflineItem, updates: Partial<Item>) => {
+  const index = cart.value.findIndex(cartItem => {
+    if ('offline_id' in item && 'offline_id' in cartItem) {
+      return item.offline_id === cartItem.offline_id
+    } else if ('id' in item && 'id' in cartItem) {
+      return item.id === cartItem.id
+    }
+    return false
+  })
+
+  if (index !== -1) {
+    cart.value[index] = { ...cart.value[index], ...updates }
+  }
+}
+
+const markCartItemAsDone = async (item: Item | OfflineItem, price?: number) => {
+  // Update price if provided
+  if (price !== undefined) {
+    updateCartItem(item, { price: price })
+  }
+  
+  // Mark as done
+  updateCartItem(item, { is_done: true })
+  
+  // Also update in main items list
+  await toggleDone(item)
+}
+
+const getCartItemId = (item: Item | OfflineItem): string => {
+  if ('offline_id' in item) {
+    return item.offline_id
+  } else if ('id' in item) {
+    return item.id?.toString() || ''
+  }
+  return ''
 }
 
 const logout = async () => {
