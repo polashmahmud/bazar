@@ -29,6 +29,20 @@
             <!-- Theme Toggle -->
             <AppearanceTabs />
 
+            <!-- Cart Button -->
+            <button
+              @click="showCartModal = true"
+              class="relative flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
+              </svg>
+              <span class="hidden sm:block">Cart</span>
+              <span v-if="cartItemCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {{ cartItemCount }}
+              </span>
+            </button>
+
             <!-- Add Item Button -->
             <button
               @click="showAddModal = true"
@@ -120,13 +134,36 @@
                 ${{ Number(item.price).toFixed(2) }}
               </span>
               <div class="flex space-x-2">
+                <!-- Add to Cart Button -->
+                <button
+                  v-if="!isInCart(item)"
+                  @click="addToCart(item)"
+                  class="bg-green-500 hover:bg-green-600 text-white rounded-full p-2 transition-colors"
+                  title="Add to Cart"
+                >
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" />
+                  </svg>
+                </button>
+                
+                <!-- In Cart Indicator -->
+                <button
+                  v-else
+                  @click="removeFromCart(item)"
+                  class="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-2 transition-colors"
+                  title="Remove from Cart"
+                >
+                  <CheckIcon class="h-5 w-5" />
+                </button>
+
                 <!-- Toggle Done Button -->
                 <button
                   @click="toggleDone(item)"
                   class="rounded-full p-2 transition-colors"
                   :class="item.is_done 
-                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white' 
                     : 'bg-gray-800 dark:bg-gray-600 hover:bg-gray-700 dark:hover:bg-gray-500 text-white'"
+                  title="Toggle Done"
                 >
                   <CheckIcon v-if="item.is_done" class="h-5 w-5" />
                   <PlusIcon v-else class="h-5 w-5" />
@@ -306,6 +343,111 @@
         </div>
       </div>
     </div>
+
+    <!-- Cart Modal -->
+    <div
+      v-if="showCartModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      @click.self="showCartModal = false"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Cart Header -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+              🛒 Shopping Cart ({{ cartItemCount }} items)
+            </h2>
+            <button
+              @click="showCartModal = false"
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <XMarkIcon class="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="max-h-96 overflow-y-auto">
+          <div v-if="cart.length === 0" class="p-8 text-center">
+            <div class="text-6xl mb-4">🛒</div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Your cart is empty
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400">
+              Add some items to your cart to get started
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div
+              v-for="item in cart"
+              :key="('offline_id' in item ? item.offline_id : item.id)"
+              class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
+              <div class="flex items-center space-x-4">
+                <!-- Item Image -->
+                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                  <img
+                    v-if="(item as any).image"
+                    :src="(item as any).image"
+                    :alt="item.name"
+                    class="w-full h-full object-cover rounded-lg"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <div class="text-2xl">📦</div>
+                  </div>
+                </div>
+
+                <!-- Item Details -->
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{ item.name }}
+                  </h4>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ item.quantity }} {{ item.quantity_unit }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    ${{ Number(item.price).toFixed(2) }}
+                  </p>
+                </div>
+
+                <!-- Remove Button -->
+                <button
+                  @click="removeFromCart(item)"
+                  class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                  title="Remove from cart"
+                >
+                  <TrashIcon class="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cart Footer -->
+        <div v-if="cart.length > 0" class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-lg font-semibold text-gray-900 dark:text-white">
+              Total: ${{ cartTotal.toFixed(2) }}
+            </span>
+            <div class="flex space-x-3">
+              <button
+                @click="clearCart"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              >
+                Clear Cart
+              </button>
+              <button
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                @click="showCartModal = false"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -316,14 +458,14 @@ import axios from 'axios'
 import AppearanceTabs from '@/components/AppearanceTabs.vue'
 import { offlineSyncService, type Item, type OfflineItem } from '@/services/offlineSync'
 import items from '@/routes/items'
-import { 
-  PlusIcon, 
-  CheckIcon, 
-  TrashIcon, 
-  XMarkIcon, 
-  ArrowRightOnRectangleIcon,
-  CloudArrowUpIcon 
-} from '@heroicons/vue/24/outline'
+
+// Define icons as simple components
+const PlusIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>' }
+const CheckIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' }
+const TrashIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>' }
+const XMarkIcon = { template: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>' }
+const ArrowRightOnRectangleIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>' }
+const CloudArrowUpIcon = { template: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>' }
 
 // Props from Laravel controller
 interface Props {
@@ -337,10 +479,12 @@ const props = defineProps<Props>()
 const selectedMonth = ref(props.currentMonth)
 const allItems = ref<(Item | OfflineItem)[]>([])
 const showAddModal = ref(false)
+const showCartModal = ref(false)
 const isSubmitting = ref(false)
 const isOnline = ref(navigator.onLine)
 const syncStatus = ref({ pendingCount: 0, isOnline: true })
 const imageInput = ref<HTMLInputElement>()
+const cart = ref<(Item | OfflineItem)[]>([])  // Shopping cart
 
 // Form data
 const form = ref({
@@ -364,6 +508,14 @@ const availableMonths = computed(() => {
   }
   
   return months
+})
+
+const cartTotal = computed(() => {
+  return cart.value.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0)
+})
+
+const cartItemCount = computed(() => {
+  return cart.value.length
 })
 
 // Methods
@@ -521,6 +673,48 @@ const resetForm = () => {
 const handleOnlineStatusChange = () => {
   isOnline.value = navigator.onLine
   updateSyncStatus()
+}
+
+const addToCart = (item: Item | OfflineItem) => {
+  // Check if item already in cart
+  const existingItem = cart.value.find(cartItem => {
+    if ('offline_id' in item && 'offline_id' in cartItem) {
+      return item.offline_id === cartItem.offline_id
+    } else if ('id' in item && 'id' in cartItem) {
+      return item.id === cartItem.id
+    }
+    return false
+  })
+
+  if (!existingItem) {
+    cart.value.push(item)
+  }
+}
+
+const removeFromCart = (item: Item | OfflineItem) => {
+  cart.value = cart.value.filter(cartItem => {
+    if ('offline_id' in item && 'offline_id' in cartItem) {
+      return item.offline_id !== cartItem.offline_id
+    } else if ('id' in item && 'id' in cartItem) {
+      return item.id !== cartItem.id
+    }
+    return true
+  })
+}
+
+const clearCart = () => {
+  cart.value = []
+}
+
+const isInCart = (item: Item | OfflineItem): boolean => {
+  return cart.value.some(cartItem => {
+    if ('offline_id' in item && 'offline_id' in cartItem) {
+      return item.offline_id === cartItem.offline_id
+    } else if ('id' in item && 'id' in cartItem) {
+      return item.id === cartItem.id
+    }
+    return false
+  })
 }
 
 const logout = async () => {
