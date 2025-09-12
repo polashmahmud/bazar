@@ -1,245 +1,328 @@
 <template>
-  <Head title="Grocery List" />
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header -->
+    <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Title -->
+          <div class="flex items-center space-x-4">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              🛒 Grocery Items
+            </h1>
+            <span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
+              {{ formatMonth(selectedMonth) }}
+            </span>
+          </div>
 
-  <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-      <!-- Header with sync status and month selector -->
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-foreground">Grocery List</h1>
-          <p class="text-sm text-muted-foreground">
-            Manage your monthly grocery items
-          </p>
-        </div>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-          <!-- Logout Button -->
-          <div class="order-4 sm:order-1">
+          <!-- Action Buttons -->
+          <div class="flex items-center space-x-2 sm:space-x-4">
+            <!-- Sync Status -->
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full" 
+                :class="isOnline && syncStatus.pendingCount === 0 ? 'bg-green-500' : isOnline && syncStatus.pendingCount > 0 ? 'bg-yellow-500' : 'bg-red-500'">
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                {{ !isOnline ? 'Offline' : syncStatus.pendingCount > 0 ? `${syncStatus.pendingCount} pending` : 'Synced' }}
+              </span>
+            </div>
+
+            <!-- Theme Toggle -->
+            <AppearanceTabs />
+
+            <!-- Add Item Button -->
+            <button
+              @click="showAddModal = true"
+              class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+            >
+              <PlusIcon class="h-5 w-5" />
+              <span class="hidden sm:block">Add Item</span>
+            </button>
+
+            <!-- Logout Button -->
             <button
               @click="logout"
-              class="px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+              class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
             >
-              🔓 Logout
+              <ArrowRightOnRectangleIcon class="h-5 w-5" />
+              <span class="hidden sm:block">Logout</span>
             </button>
-          </div>
-          
-          <!-- Theme Toggle -->
-          <div class="order-3 sm:order-2">
-            <AppearanceTabs />
-          </div>
-          
-          <!-- Sync Status -->
-          <div class="flex items-center space-x-2 order-1 sm:order-3">
-            <span class="text-xs text-muted-foreground">Status:</span>
-            <div 
-              :class="{
-                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': isOnline && syncStatus.pendingCount === 0,
-                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': isOnline && syncStatus.pendingCount > 0,
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': !isOnline
-              }"
-              class="px-2 py-1 rounded-full text-xs font-medium"
-            >
-              <span v-if="!isOnline">Offline</span>
-              <span v-else-if="syncStatus.pendingCount > 0">
-                {{ syncStatus.pendingCount }} pending sync
-              </span>
-              <span v-else>Synced</span>
-            </div>
-          </div>
-          <!-- Month Selector -->
-          <div class="flex items-center space-x-2 order-2 sm:order-4">
-            <label for="month-select" class="text-xs text-muted-foreground">Month:</label>
-            <select 
-              id="month-select"
-              v-model="selectedMonth" 
-              @change="changeMonth"
-              class="border border-input rounded-md px-3 py-2 bg-background text-foreground focus:border-ring focus:ring-ring focus:ring-2 focus:ring-offset-2 text-sm"
-            >
-              <option v-for="month in availableMonths" :key="month.value" :value="month.value">
-                {{ month.label }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- Add Item Form -->
-        <div class="xl:col-span-1">
-          <div class="bg-card shadow-md border border-border rounded-lg p-6">
-            <h2 class="text-lg font-medium text-foreground mb-4">Add New Item</h2>
-            <form @submit.prevent="addItem" class="space-y-4">
-              <div>
-                <label for="name" class="block text-sm font-medium text-foreground mb-1">Item Name</label>
-                <input
-                  id="name"
-                  v-model="form.name"
-                  type="text"
-                  required
-                  class="w-full border border-input rounded-md px-3 py-2 bg-background text-foreground placeholder:text-muted-foreground shadow-sm focus:border-ring focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all"
-                  placeholder="e.g., Milk, Bread, Apples"
-                />
-              </div>
-
-              <div>
-                <label for="category" class="block text-sm font-medium text-foreground mb-1">Category</label>
-                <select
-                  id="category"
-                  v-model="form.category"
-                  required
-                  class="w-full border border-input rounded-md px-3 py-2 bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all"
-                >
-                  <option value="" class="text-muted-foreground">Select Category</option>
-                  <option value="Dairy">🥛 Dairy</option>
-                  <option value="Meat">🥩 Meat</option>
-                  <option value="Vegetables">🥕 Vegetables</option>
-                  <option value="Fruits">🍎 Fruits</option>
-                  <option value="Grains">🌾 Grains</option>
-                  <option value="Beverages">🧃 Beverages</option>
-                  <option value="Snacks">🍿 Snacks</option>
-                  <option value="Household">🧽 Household</option>
-                  <option value="Other">📦 Other</option>
-                </select>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label for="quantity" class="block text-sm font-medium text-foreground mb-1">Quantity</label>
-                  <input
-                    id="quantity"
-                    v-model.number="form.quantity"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    class="w-full border border-input rounded-md px-3 py-2 bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label for="price" class="block text-sm font-medium text-foreground mb-1">Price ($)</label>
-                  <input
-                    id="price"
-                    v-model.number="form.price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    class="w-full border border-input rounded-md px-3 py-2 bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                :disabled="isSubmitting"
-                class="w-full bg-primary text-primary-foreground py-2.5 px-4 rounded-md hover:bg-primary/90 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
-              >
-                <span v-if="isSubmitting">Adding...</span>
-                <span v-else>Add Item</span>
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Items List -->
-        <div class="xl:col-span-2">
-          <div class="bg-card shadow-md border border-border rounded-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-border bg-muted/50">
-              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                <h2 class="text-lg font-medium text-foreground">
-                  Items for {{ formatMonth(selectedMonth) }}
-                </h2>
-                <div class="text-sm text-muted-foreground space-y-1 sm:space-y-0">
-                  <div class="flex flex-wrap gap-4">
-                    <span class="font-medium">Total: <span class="text-foreground">${{ totalAmount.toFixed(2) }}</span></span>
-                    <span>Items: <span class="text-foreground">{{ allItems.length }}</span></span>
-                    <span>Done: <span class="text-foreground">{{ doneItems.length }}</span></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="divide-y divide-border max-h-[600px] overflow-y-auto">
-              <div v-if="allItems.length === 0" class="p-8 text-center">
-                <div class="text-4xl mb-2">🛒</div>
-                <p class="text-muted-foreground">No items for this month.</p>
-                <p class="text-sm text-muted-foreground mt-1">Add your first grocery item!</p>
-              </div>
-
-              <div
-                v-for="item in allItems"
-                :key="('offline_id' in item ? item.offline_id : item.id)"
-                :class="{
-                  'opacity-60': item.is_done,
-                  'bg-yellow-50 dark:bg-yellow-950/20 border-l-2 border-l-yellow-400 dark:border-l-yellow-600': 'offline_id' in item && item.needs_sync
-                }"
-                class="p-4 sm:p-6 hover:bg-muted/30 transition-all duration-200"
-              >
-                <div class="flex items-start sm:items-center justify-between gap-4">
-                  <div class="flex items-start sm:items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
-                    <div class="flex-shrink-0 pt-1 sm:pt-0">
-                      <input
-                        type="checkbox"
-                        :checked="item.is_done"
-                        @change="toggleDone(item)"
-                        class="h-4 w-4 text-primary rounded border-input focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all"
-                      />
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                        <h3 
-                          :class="{ 'line-through': item.is_done }"
-                          class="text-base sm:text-lg font-medium text-foreground break-words"
-                        >
-                          {{ item.name }}
-                        </h3>
-                        <div class="flex items-center gap-2">
-                          <span 
-                            v-if="'offline_id' in item && item.needs_sync"
-                            class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full flex-shrink-0"
-                          >
-                            📱 Offline
-                          </span>
-                        </div>
-                      </div>
-                      <div class="mt-2 text-sm text-muted-foreground space-y-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-accent text-accent-foreground font-medium">
-                            {{ item.category.replace(/[^a-zA-Z]/g, '') }}
-                          </span>
-                          <span>Qty: <span class="font-medium text-foreground">{{ item.quantity }}</span></span>
-                          <span>Price: <span class="font-medium text-foreground">${{ Number(item.price).toFixed(2) }}</span></span>
-                          <span class="font-medium text-foreground">Total: ${{ (Number(item.price) * Number(item.quantity)).toFixed(2) }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    @click="deleteItem(item)"
-                    class="text-destructive hover:text-destructive/80 text-sm font-medium transition-colors px-2 py-1 rounded hover:bg-destructive/10 flex-shrink-0"
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
-  </AppLayout>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Month Selector -->
+      <div class="mb-6">
+        <select 
+          v-model="selectedMonth" 
+          @change="changeMonth"
+          class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option v-for="month in availableMonths" :key="month.value" :value="month.value">
+            {{ month.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Items Grid -->
+      <div v-if="allItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div
+          v-for="item in allItems"
+          :key="('offline_id' in item ? item.offline_id : item.id)"
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
+          :class="{ 'opacity-60': item.is_done, 'ring-2 ring-yellow-400 dark:ring-yellow-600': 'offline_id' in item && item.needs_sync }"
+        >
+          <!-- Product Image -->
+          <div class="aspect-square bg-gray-100 dark:bg-gray-700 relative">
+            <img
+              v-if="(item as any).image"
+              :src="(item as any).image"
+              :alt="item.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <div class="text-6xl">{{ getCategoryEmoji(item.category) }}</div>
+            </div>
+            
+            <!-- Status Indicators -->
+            <div class="absolute top-3 right-3 flex space-x-2">
+              <!-- Done Status -->
+              <div
+                v-if="item.is_done"
+                class="bg-green-500 text-white rounded-full p-2"
+              >
+                <CheckIcon class="h-4 w-4" />
+              </div>
+              
+              <!-- Offline Status -->
+              <div
+                v-if="'offline_id' in item && item.needs_sync"
+                class="bg-yellow-500 text-white rounded-full p-2"
+                title="Pending sync"
+              >
+                <CloudArrowUpIcon class="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Info -->
+          <div class="p-4">
+            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-1" :class="{ 'line-through': item.is_done }">
+              {{ item.name }}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+              {{ item.quantity }} {{ item.category }}
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="text-xl font-bold text-gray-900 dark:text-white">
+                ${{ Number(item.price).toFixed(2) }}
+              </span>
+              <div class="flex space-x-2">
+                <!-- Toggle Done Button -->
+                <button
+                  @click="toggleDone(item)"
+                  class="rounded-full p-2 transition-colors"
+                  :class="item.is_done 
+                    ? 'bg-green-500 hover:bg-green-600 text-white' 
+                    : 'bg-gray-800 dark:bg-gray-600 hover:bg-gray-700 dark:hover:bg-gray-500 text-white'"
+                >
+                  <CheckIcon v-if="item.is_done" class="h-5 w-5" />
+                  <PlusIcon v-else class="h-5 w-5" />
+                </button>
+                
+                <!-- Delete Button -->
+                <button
+                  @click="deleteItem(item)"
+                  class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors"
+                  title="Delete item"
+                >
+                  <TrashIcon class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-12">
+        <div class="text-8xl mb-4">🛒</div>
+        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+          No items in your grocery list
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+          Start by adding some items to your shopping list for {{ formatMonth(selectedMonth) }}
+        </p>
+        <button
+          @click="showAddModal = true"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        >
+          Add Your First Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div
+      v-if="showAddModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      @click.self="showAddModal = false"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Item</h2>
+            <button
+              @click="showAddModal = false"
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <XMarkIcon class="h-6 w-6" />
+            </button>
+          </div>
+
+          <form @submit.prevent="addItem" class="space-y-4">
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Product Image (Optional)
+              </label>
+              <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                <div v-if="form.image" class="mb-4">
+                  <img :src="form.image" alt="Preview" class="w-24 h-24 object-cover rounded-lg mx-auto" />
+                </div>
+                <input
+                  ref="imageInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handleImageUpload"
+                  class="hidden"
+                />
+                <button
+                  type="button"
+                  @click="imageInput?.click()"
+                  class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  {{ form.image ? 'Change Image' : 'Upload Image' }}
+                </button>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  PNG, JPG up to 2MB
+                </p>
+              </div>
+            </div>
+
+            <!-- Item Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Item Name *
+              </label>
+              <input
+                v-model="form.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="e.g., Mushroom Sauce"
+              />
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Category *
+              </label>
+              <select
+                v-model="form.category"
+                required
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select Category</option>
+                <option value="Dairy">🥛 Dairy</option>
+                <option value="Meat">🥩 Meat</option>
+                <option value="Vegetables">🥕 Vegetables</option>
+                <option value="Fruits">🍎 Fruits</option>
+                <option value="Grains">🌾 Grains</option>
+                <option value="Beverages">🧃 Beverages</option>
+                <option value="Snacks">🍿 Snacks</option>
+                <option value="Household">🧽 Household</option>
+                <option value="Kg">Kg</option>
+                <option value="Pieces">Pieces</option>
+                <option value="Bottles">Bottles</option>
+                <option value="Other">📦 Other</option>
+              </select>
+            </div>
+
+            <!-- Quantity -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Quantity *
+              </label>
+              <input
+                v-model.number="form.quantity"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="e.g., 1, 0.5, 24"
+              />
+            </div>
+
+            <!-- Price -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Price ($) *
+              </label>
+              <input
+                v-model.number="form.price"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="e.g., 8.92"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex space-x-3 pt-4">
+              <button
+                type="button"
+                @click="showAddModal = false"
+                class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="isSubmitting"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                {{ isSubmitting ? 'Adding...' : 'Add Item' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { router, Head } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import axios from 'axios'
-import AppLayout from '@/layouts/AppLayout.vue'
 import AppearanceTabs from '@/components/AppearanceTabs.vue'
 import { offlineSyncService, type Item, type OfflineItem } from '@/services/offlineSync'
 import items from '@/routes/items'
-import type { BreadcrumbItem } from '@/types'
+import { 
+  PlusIcon, 
+  CheckIcon, 
+  TrashIcon, 
+  XMarkIcon, 
+  ArrowRightOnRectangleIcon,
+  CloudArrowUpIcon 
+} from '@heroicons/vue/24/outline'
 
 // Props from Laravel controller
 interface Props {
@@ -249,27 +332,22 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// Breadcrumbs
-const breadcrumbs: BreadcrumbItem[] = [
-  {
-    title: 'Grocery List',
-    href: items.index().url,
-  },
-]
-
 // Reactive state
 const selectedMonth = ref(props.currentMonth)
 const allItems = ref<(Item | OfflineItem)[]>([])
+const showAddModal = ref(false)
 const isSubmitting = ref(false)
 const isOnline = ref(navigator.onLine)
 const syncStatus = ref({ pendingCount: 0, isOnline: true })
+const imageInput = ref<HTMLInputElement>()
 
 // Form data
 const form = ref({
   name: '',
   category: '',
   quantity: 1,
-  price: 0
+  price: 0,
+  image: ''
 })
 
 // Computed properties
@@ -287,19 +365,29 @@ const availableMonths = computed(() => {
   return months
 })
 
-const totalAmount = computed(() => {
-  return allItems.value.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0)
-})
-
-const doneItems = computed(() => {
-  return allItems.value.filter(item => item.is_done)
-})
-
 // Methods
 const formatMonth = (month: string) => {
   const [year, monthNum] = month.split('-')
   const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1)
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+}
+
+const getCategoryEmoji = (category: string) => {
+  const emojiMap: Record<string, string> = {
+    'Dairy': '🥛',
+    'Meat': '🥩',
+    'Vegetables': '🥕',
+    'Fruits': '🍎',
+    'Grains': '🌾',
+    'Beverages': '🧃',
+    'Snacks': '🍿',
+    'Household': '🧽',
+    'Kg': '⚖️',
+    'Pieces': '🔢',
+    'Bottles': '🍶',
+    'Other': '📦'
+  }
+  return emojiMap[category] || '📦'
 }
 
 const loadItems = async () => {
@@ -315,6 +403,22 @@ const loadItems = async () => {
 
 const updateSyncStatus = async () => {
   syncStatus.value = await offlineSyncService.getSyncStatus()
+}
+
+const handleImageUpload = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (file) {
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image size should be less than 2MB')
+      return
+    }
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      form.value.image = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
 }
 
 const addItem = async () => {
@@ -337,6 +441,7 @@ const addItem = async () => {
           // Add to local list
           allItems.value.unshift(response.data.item)
           resetForm()
+          showAddModal.value = false
         }
       } catch (error) {
         // If server fails, save offline
@@ -344,6 +449,7 @@ const addItem = async () => {
         const offlineItem = await offlineSyncService.saveOffline(itemData)
         allItems.value.unshift(offlineItem)
         resetForm()
+        showAddModal.value = false
         await updateSyncStatus()
       }
     } else {
@@ -351,6 +457,7 @@ const addItem = async () => {
       const offlineItem = await offlineSyncService.saveOffline(itemData)
       allItems.value.unshift(offlineItem)
       resetForm()
+      showAddModal.value = false
       await updateSyncStatus()
     }
   } catch (error) {
@@ -420,7 +527,11 @@ const resetForm = () => {
     name: '',
     category: '',
     quantity: 1,
-    price: 0
+    price: 0,
+    image: ''
+  }
+  if (imageInput.value) {
+    imageInput.value.value = ''
   }
 }
 

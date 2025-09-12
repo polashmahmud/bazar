@@ -5,6 +5,7 @@ export interface Item {
   id?: number
   name: string
   category: string
+  image?: string
   quantity: number
   price: number
   month: string
@@ -12,7 +13,7 @@ export interface Item {
   user_id?: number
   created_at?: string
   updated_at?: string
-  synced_at?: string
+  synced_at?: string | null
 }
 
 export interface OfflineItem extends Item {
@@ -90,7 +91,7 @@ class OfflineSyncService {
   // Get all offline items
   async getAllOffline(): Promise<OfflineItem[]> {
     const items: OfflineItem[] = []
-    await this.store.iterate<OfflineItem, void>((item) => {
+    await this.store.iterate<OfflineItem, void>((item: OfflineItem) => {
       items.push(item)
     })
     return items.sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
@@ -114,7 +115,7 @@ class OfflineSyncService {
   // Remove from sync queue
   private async removeFromSyncQueue(offlineId: string): Promise<void> {
     const queue = await this.syncQueue.getItem<string[]>('pending') || []
-    const filtered = queue.filter(id => id !== offlineId)
+    const filtered = queue.filter((id: string) => id !== offlineId)
     await this.syncQueue.setItem('pending', filtered)
   }
 
@@ -142,6 +143,7 @@ class OfflineSyncService {
         items: itemsToSync.map(item => ({
           name: item.name,
           category: item.category,
+          image: item.image,
           quantity: item.quantity,
           price: item.price,
           month: item.month,

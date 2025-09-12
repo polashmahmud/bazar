@@ -35,6 +35,7 @@ class ItemController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255',
+            'image' => 'nullable|string', // Base64 encoded image or URL
             'quantity' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'month' => 'required|string|date_format:Y-m',
@@ -64,6 +65,7 @@ class ItemController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'category' => 'sometimes|string|max:255',
+            'image' => 'nullable|string', // Base64 encoded image or URL
             'quantity' => 'sometimes|numeric|min:0',
             'price' => 'sometimes|numeric|min:0',
             'month' => 'sometimes|string|date_format:Y-m',
@@ -107,6 +109,7 @@ class ItemController extends Controller
             'items' => 'required|array',
             'items.*.name' => 'required|string|max:255',
             'items.*.category' => 'required|string|max:255',
+            'items.*.image' => 'nullable|string', // Base64 encoded image or URL
             'items.*.quantity' => 'required|numeric|min:0',
             'items.*.price' => 'required|numeric|min:0',
             'items.*.month' => 'required|string|date_format:Y-m',

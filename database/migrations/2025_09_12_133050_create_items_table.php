@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('category');
+            $table->string('image')->nullable(); // Product image URL or path
             $table->decimal('quantity', 8, 2);
             $table->decimal('price', 10, 2);
             $table->string('month'); // Format: YYYY-MM
