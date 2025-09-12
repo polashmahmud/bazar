@@ -12,13 +12,23 @@
           </p>
         </div>
         <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <!-- Logout Button -->
+          <div class="order-4 sm:order-1">
+            <button
+              @click="logout"
+              class="px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+            >
+              🔓 Logout
+            </button>
+          </div>
+          
           <!-- Theme Toggle -->
-          <div class="order-3 sm:order-1">
+          <div class="order-3 sm:order-2">
             <AppearanceTabs />
           </div>
           
           <!-- Sync Status -->
-          <div class="flex items-center space-x-2 order-1 sm:order-2">
+          <div class="flex items-center space-x-2 order-1 sm:order-3">
             <span class="text-xs text-muted-foreground">Status:</span>
             <div 
               :class="{
@@ -36,7 +46,7 @@
             </div>
           </div>
           <!-- Month Selector -->
-          <div class="flex items-center space-x-2 order-2 sm:order-3">
+          <div class="flex items-center space-x-2 order-2 sm:order-4">
             <label for="month-select" class="text-xs text-muted-foreground">Month:</label>
             <select 
               id="month-select"
@@ -417,6 +427,19 @@ const resetForm = () => {
 const handleOnlineStatusChange = () => {
   isOnline.value = navigator.onLine
   updateSyncStatus()
+}
+
+const logout = async () => {
+  if (confirm('Are you sure you want to logout?')) {
+    try {
+      await axios.post('/pin-logout')
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Force redirect anyway
+      window.location.href = '/'
+    }
+  }
 }
 
 // Lifecycle

@@ -1,19 +1,21 @@
 <?php
 
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PinAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+// PIN Authentication Routes
+Route::get('/', [PinAuthController::class, 'showPinForm'])->name('pin.form');
+Route::post('/pin-verify', [PinAuthController::class, 'verifyPin'])->name('pin.verify');
+Route::post('/pin-logout', [PinAuthController::class, 'logout'])->name('pin.logout');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Items routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
     Route::post('/items', [ItemController::class, 'store'])->name('items.store');
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
