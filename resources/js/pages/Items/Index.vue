@@ -538,19 +538,39 @@ const addItem = async () => {
       is_done: false
     }
 
+    console.log('Adding item:', { isOnline: isOnline.value, itemData })
+
     if (isOnline.value) {
       // Try to save to server
       try {
-        const response = await axios.post('/items', itemData)
+        console.log('Attempting server save...')
+        const response = await axios.post('/items', itemData, {
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+        
+        console.log('Server response:', response.data)
+        
         if (response.data.success) {
           // Add to local list
           allItems.value.unshift(response.data.item)
           resetForm()
           showAddModal.value = false
+          console.log('Item saved to server successfully')
         }
       } catch (error) {
         // If server fails, save offline
-        console.error('Server save failed, saving offline:', error)
+        console.error('Server save failed:', {
+          message: (error as any).message,
+          response: (error as any).response?.data,
+          status: (error as any).response?.status,
+          statusText: (error as any).response?.statusText
+        })
+        console.log('Falling back to offline save...')
+        
         const offlineItem = await offlineSyncService.saveOffline(itemData)
         allItems.value.unshift(offlineItem)
         resetForm()
@@ -559,6 +579,7 @@ const addItem = async () => {
       }
     } else {
       // Save offline
+      console.log('Saving offline (device offline)...')
       const offlineItem = await offlineSyncService.saveOffline(itemData)
       allItems.value.unshift(offlineItem)
       resetForm()

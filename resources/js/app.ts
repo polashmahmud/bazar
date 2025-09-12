@@ -9,6 +9,7 @@ import axios from 'axios';
 
 // Configure axios defaults
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.withCredentials = true; // Ensure cookies are sent with requests
 
 // Set CSRF token from meta tag
 const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');

@@ -26,29 +26,50 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'quantity' => 'sometimes|numeric|min:0',
-            'quantity_unit' => 'sometimes|string|max:50',
-            'image' => 'nullable|string', // Base64 encoded image or URL
-            'price' => 'sometimes|numeric|min:0',
-            'month' => 'required|string|date_format:Y-m',
+        // Debug logging
+        \Log::info('Item Store Request', [
+            'user_id' => auth()->id(),
+            'user_authenticated' => auth()->check(),
+            'request_data' => $request->all()
         ]);
 
-        // Set defaults for missing fields
-        $validated['quantity'] = $validated['quantity'] ?? 1;
-        $validated['quantity_unit'] = $validated['quantity_unit'] ?? 'পিস';
-        $validated['price'] = $validated['price'] ?? 0;
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'quantity' => 'sometimes|numeric|min:0',
+                'quantity_unit' => 'sometimes|string|max:50',
+                'image' => 'nullable|string', // Base64 encoded image or URL
+                'price' => 'sometimes|numeric|min:0',
+                'month' => 'required|string|date_format:Y-m',
+            ]);
 
-        $item = auth()->user()->items()->create([
-            ...$validated,
-            'synced_at' => now(),
-        ]);
+            // Set defaults for missing fields
+            $validated['quantity'] = $validated['quantity'] ?? 1;
+            $validated['quantity_unit'] = $validated['quantity_unit'] ?? 'পিস';
+            $validated['price'] = $validated['price'] ?? 0;
 
-        return response()->json([
-            'success' => true,
-            'item' => $item,
-        ]);
+            $item = auth()->user()->items()->create([
+                ...$validated,
+                'synced_at' => now(),
+            ]);
+
+            \Log::info('Item Created Successfully', ['item_id' => $item->id]);
+
+            return response()->json([
+                'success' => true,
+                'item' => $item,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Item Store Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
