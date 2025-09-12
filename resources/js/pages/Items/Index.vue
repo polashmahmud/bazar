@@ -686,14 +686,18 @@ const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
 }
 
 const markCartItemAsDone = async (item: CartItem, price?: number) => {
-  // Update price if provided
-  if (price !== undefined) {
-    updateCartItem(item, { price: price })
-  }
-  
   try {
+    // Update price if provided, otherwise ensure we have a valid price
+    const finalPrice = price !== undefined ? price : (item.price > 0 ? item.price : 10)
+    
+    if (finalPrice !== item.price) {
+      await updateCartItem(item, { price: finalPrice })
+      item.price = finalPrice // Update local item
+    }
+    
     // Mark as done in database
-    await axios.post(`/cart/${item.cart_id}/done`)
+    const response = await axios.post(`/cart/${item.cart_id}/done`)
+    console.log('Mark as done response:', response.data)
     
     // Mark as done locally
     updateCartItem(item, { is_done: true })
@@ -701,7 +705,7 @@ const markCartItemAsDone = async (item: CartItem, price?: number) => {
     // Remove from cart after marking as done
     removeFromCart(item)
   } catch (error) {
-    console.warn('Failed to mark as done on server:', error)
+    console.error('Failed to mark as done on server:', error)
     // Still remove from cart locally
     removeFromCart(item)
   }

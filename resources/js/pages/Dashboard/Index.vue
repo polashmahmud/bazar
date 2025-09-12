@@ -218,7 +218,7 @@
                   ${{ (Number(item.price) * Number(item.quantity)).toFixed(2) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDate(item.updated_at) }}
+                  {{ formatDate(item.done_at || item.updated_at) }}
                 </td>
               </tr>
             </tbody>
@@ -246,6 +246,7 @@ const CalculatorIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 
 // Props from Laravel controller
 interface Item {
   id: number
+  cart_id?: string
   name: string
   quantity: number
   quantity_unit: string
@@ -255,6 +256,7 @@ interface Item {
   is_done: boolean
   created_at: string
   updated_at: string
+  done_at?: string
 }
 
 interface MonthlySummary {
