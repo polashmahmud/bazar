@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PinAuthController;
 use Illuminate\Support\Facades\Route;
@@ -10,12 +11,12 @@ Route::get('/', [PinAuthController::class, 'showPinForm'])->name('pin.form');
 Route::post('/pin-verify', [PinAuthController::class, 'verifyPin'])->name('pin.verify');
 Route::post('/pin-logout', [PinAuthController::class, 'logout'])->name('pin.logout');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// Items routes
+// Protected Routes
 Route::middleware(['auth'])->group(function () {
+    // Dashboard routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Items routes
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
     Route::post('/items', [ItemController::class, 'store'])->name('items.store');
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');

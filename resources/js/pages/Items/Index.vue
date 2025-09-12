@@ -52,6 +52,17 @@
               <span class="hidden sm:block">Add Item</span>
             </button>
 
+            <!-- Dashboard Button -->
+            <button
+              @click="goToDashboard"
+              class="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10" />
+              </svg>
+              <span class="hidden sm:block">Dashboard</span>
+            </button>
+
             <!-- Logout Button -->
             <button
               @click="logout"
@@ -773,6 +784,9 @@ const markCartItemAsDone = async (item: Item | OfflineItem, price?: number) => {
   
   // Also update in main items list
   await toggleDone(item)
+  
+  // Remove from cart after marking as done
+  removeFromCart(item)
 }
 
 const getCartItemId = (item: Item | OfflineItem): string => {
@@ -795,6 +809,10 @@ const logout = async () => {
       window.location.href = '/'
     }
   }
+}
+
+const goToDashboard = () => {
+  router.get('/dashboard')
 }
 
 // Lifecycle
