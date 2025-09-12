@@ -76,9 +76,9 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Items Grid -->
-      <div v-if="allItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div v-if="filteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         <div
-          v-for="item in allItems"
+          v-for="item in filteredItems"
           :key="('offline_id' in item ? item.offline_id : item.id)"
           class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300"
         >
@@ -119,16 +119,16 @@
       <div v-else class="text-center py-12">
         <div class="text-8xl mb-4">🛒</div>
         <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-          No items in your grocery list
+          {{ allItems.length > 0 ? 'All items are marked as done' : 'No items in your grocery list' }}
         </h3>
         <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-          Start by adding some items to your shopping list
+          {{ allItems.length > 0 ? 'Add more items or check your completed items in the dashboard' : 'Start by adding some items to your shopping list' }}
         </p>
         <button
           @click="showAddModal = true"
           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
         >
-          Add Your First Item
+          {{ allItems.length > 0 ? 'Add More Items' : 'Add Your First Item' }}
         </button>
       </div>
     </div>
@@ -470,6 +470,11 @@ const cartTotal = computed(() => {
 
 const cartItemCount = computed(() => {
   return cart.value.length
+})
+
+// Filter out items that are already marked as done
+const filteredItems = computed(() => {
+  return allItems.value.filter(item => !item.is_done)
 })
 
 // Methods

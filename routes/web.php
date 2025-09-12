@@ -30,6 +30,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/{cartId}/done', [CartHistoryController::class, 'markAsDone'])->name('cart.done');
     Route::delete('/cart/{cartId}', [CartHistoryController::class, 'removeFromCart'])->name('cart.remove');
     Route::get('/cart/active', [CartHistoryController::class, 'getActiveCartItems'])->name('cart.active');
+    
+    // Debug page
+    Route::get('/debug-cart-relations', function () {
+        return Inertia::render('Debug/CartItemRelations');
+    })->name('debug.cart-relations');
 });
 
 require __DIR__.'/settings.php';

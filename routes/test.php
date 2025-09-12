@@ -49,5 +49,20 @@ Route::post('/test-item', function (\Illuminate\Http\Request $request) {
     }
 });
 
-// Debug logging route
+// Debug routes
+Route::middleware(['auth'])->prefix('debug')->group(function () {
+    // Frontend error logging
+    Route::post('/log', [DebugController::class, 'logFrontendError']);
+    
+    // Cart and Item relationship debugging
+    Route::get('/cart-item-relationship', [DebugController::class, 'debugCartItemRelationship']);
+    
+    // Test marking an item as done
+    Route::post('/test-mark-item-done', [DebugController::class, 'testMarkAsDone']);
+    
+    // Test marking a cart item as done
+    Route::post('/test-mark-cart-item-done', [DebugController::class, 'testMarkCartItemAsDone']);
+});
+
+// Legacy route for backwards compatibility
 Route::post('/debug-log', [DebugController::class, 'logFrontendError']);
