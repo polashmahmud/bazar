@@ -254,7 +254,7 @@
           <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
             <div
               v-for="item in cart"
-              :key="('offline_id' in item ? item.offline_id : item.id)"
+              :key="item.cart_id"
               class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
             >
               <div class="flex items-start space-x-4">
@@ -431,6 +431,13 @@ const XMarkIcon = { template: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 
 const ArrowRightOnRectangleIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>' }
 const CloudArrowUpIcon = { template: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>' }
 
+// Cart item interface - extends Item/OfflineItem with unique cart ID
+interface CartItem extends Item {
+  cart_id: string
+  offline_id?: string
+  needs_sync?: boolean
+}
+
 // Props from Laravel controller
 interface Props {
   items: Item[]
@@ -446,7 +453,7 @@ const isSubmitting = ref(false)
 const isOnline = ref(navigator.onLine)
 const syncStatus = ref({ pendingCount: 0, isOnline: true })
 const imageInput = ref<HTMLInputElement>()
-const cart = ref<(Item | OfflineItem)[]>([])  // Shopping cart
+const cart = ref<CartItem[]>([])  // Shopping cart with unique cart IDs
 const editingCartItem = ref<string | null>(null) // For editing cart items
 
 // Form data
@@ -616,63 +623,32 @@ const handleOnlineStatusChange = () => {
 }
 
 const addToCart = (item: Item | OfflineItem) => {
-  // Check if item already in cart
-  const existingItem = cart.value.find(cartItem => {
-    if ('offline_id' in item && 'offline_id' in cartItem) {
-      return item.offline_id === cartItem.offline_id
-    } else if ('id' in item && 'id' in cartItem) {
-      return item.id === cartItem.id
-    }
-    return false
-  })
-
-  if (!existingItem) {
-    cart.value.push(item)
+  // Create a new cart entry every time (allowing multiple instances of same item)
+  const cartItem: CartItem = {
+    ...item,
+    cart_id: `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Unique cart ID
   }
+  
+  cart.value.push(cartItem)
 }
 
-const removeFromCart = (item: Item | OfflineItem) => {
-  cart.value = cart.value.filter(cartItem => {
-    if ('offline_id' in item && 'offline_id' in cartItem) {
-      return item.offline_id !== cartItem.offline_id
-    } else if ('id' in item && 'id' in cartItem) {
-      return item.id !== cartItem.id
-    }
-    return true
-  })
+const removeFromCart = (cartItem: CartItem) => {
+  cart.value = cart.value.filter(item => item.cart_id !== cartItem.cart_id)
 }
 
 const clearCart = () => {
   cart.value = []
 }
 
-const isInCart = (item: Item | OfflineItem): boolean => {
-  return cart.value.some(cartItem => {
-    if ('offline_id' in item && 'offline_id' in cartItem) {
-      return item.offline_id === cartItem.offline_id
-    } else if ('id' in item && 'id' in cartItem) {
-      return item.id === cartItem.id
-    }
-    return false
-  })
-}
-
-const updateCartItem = (item: Item | OfflineItem, updates: Partial<Item>) => {
-  const index = cart.value.findIndex(cartItem => {
-    if ('offline_id' in item && 'offline_id' in cartItem) {
-      return item.offline_id === cartItem.offline_id
-    } else if ('id' in item && 'id' in cartItem) {
-      return item.id === cartItem.id
-    }
-    return false
-  })
+const updateCartItem = (item: CartItem, updates: Partial<CartItem>) => {
+  const index = cart.value.findIndex(cartItem => cartItem.cart_id === item.cart_id)
 
   if (index !== -1) {
     cart.value[index] = { ...cart.value[index], ...updates }
   }
 }
 
-const markCartItemAsDone = async (item: Item | OfflineItem, price?: number) => {
+const markCartItemAsDone = async (item: CartItem, price?: number) => {
   // Update price if provided
   if (price !== undefined) {
     updateCartItem(item, { price: price })
@@ -688,13 +664,8 @@ const markCartItemAsDone = async (item: Item | OfflineItem, price?: number) => {
   removeFromCart(item)
 }
 
-const getCartItemId = (item: Item | OfflineItem): string => {
-  if ('offline_id' in item) {
-    return item.offline_id
-  } else if ('id' in item) {
-    return item.id?.toString() || ''
-  }
-  return ''
+const getCartItemId = (item: CartItem): string => {
+  return item.cart_id
 }
 
 const logout = async () => {
