@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PinAuthController;
@@ -22,6 +23,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
     Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     Route::post('/items/bulk-sync', [ItemController::class, 'bulkSync'])->name('items.bulk-sync');
+    
+    // Cart History routes
+    Route::post('/cart/add', [CartHistoryController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/{cartId}', [CartHistoryController::class, 'updateCartItem'])->name('cart.update');
+    Route::post('/cart/{cartId}/done', [CartHistoryController::class, 'markAsDone'])->name('cart.done');
+    Route::delete('/cart/{cartId}', [CartHistoryController::class, 'removeFromCart'])->name('cart.remove');
+    Route::get('/cart/active', [CartHistoryController::class, 'getActiveCartItems'])->name('cart.active');
 });
 
 require __DIR__.'/settings.php';

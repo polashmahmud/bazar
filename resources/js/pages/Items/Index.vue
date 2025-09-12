@@ -484,6 +484,22 @@ const loadItems = async () => {
   allItems.value = [...serverItems, ...offlineItems]
 }
 
+const loadActiveCartItems = async () => {
+  try {
+    const response = await axios.get('/cart/active')
+    const serverCartItems = response.data
+    
+    // Transform server cart items to match CartItem interface
+    cart.value = serverCartItems.map((item: any) => ({
+      ...item,
+      id: item.item_id // Map item_id to id for compatibility
+    }))
+  } catch (error) {
+    console.warn('Failed to load cart items from server:', error)
+    cart.value = []
+  }
+}
+
 const updateSyncStatus = async () => {
   syncStatus.value = await offlineSyncService.getSyncStatus()
 }
@@ -557,34 +573,6 @@ const addItem = async () => {
   }
 }
 
-const toggleDone = async (item: Item | OfflineItem) => {
-  const newStatus = !item.is_done
-  
-  if ('offline_id' in item) {
-    // Update offline item
-    await offlineSyncService.updateOffline(item.offline_id, { is_done: newStatus })
-    const itemIndex = allItems.value.findIndex(i => 'offline_id' in i && i.offline_id === item.offline_id)
-    if (itemIndex !== -1) {
-      (allItems.value[itemIndex] as OfflineItem).is_done = newStatus
-    }
-    await updateSyncStatus()
-  } else if (item.id) {
-    // Update server item
-    try {
-      const response = await axios.put(`/items/${item.id}`, { is_done: newStatus })
-      if (response.data.success) {
-        const itemIndex = allItems.value.findIndex(i => 'id' in i && i.id === item.id)
-        if (itemIndex !== -1) {
-          (allItems.value[itemIndex] as Item).is_done = newStatus
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update item:', error)
-      alert('Failed to update item. Please try again.')
-    }
-  }
-}
-
 const deleteItem = async (item: Item | OfflineItem) => {
   if (!confirm('Are you sure you want to delete this item?')) return
   
@@ -622,17 +610,58 @@ const handleOnlineStatusChange = () => {
   updateSyncStatus()
 }
 
-const addToCart = (item: Item | OfflineItem) => {
-  // Create a new cart entry every time (allowing multiple instances of same item)
-  const cartItem: CartItem = {
-    ...item,
-    cart_id: `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Unique cart ID
-  }
+const addToCart = async (item: Item | OfflineItem) => {
+  const currentDate = new Date()
+  const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+  const cartId = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
-  cart.value.push(cartItem)
+  try {
+    // Save to database
+    const response = await axios.post('/cart/add', {
+      item_id: 'id' in item ? item.id : null,
+      cart_id: cartId,
+      quantity: 1,
+      quantity_unit: 'পিস',
+      price: 0,
+      month: currentMonth
+    })
+    
+    if (response.data.success) {
+      // Add to local cart
+      const cartItem: CartItem = {
+        ...item,
+        cart_id: cartId,
+        quantity: 1,
+        quantity_unit: 'পিস',
+        price: 0
+      }
+      
+      cart.value.push(cartItem)
+    }
+  } catch (error) {
+    // Fallback to local storage if server fails
+    const cartItem: CartItem = {
+      ...item,
+      cart_id: cartId,
+      quantity: 1,
+      quantity_unit: 'পিস',
+      price: 0
+    }
+    
+    cart.value.push(cartItem)
+    console.warn('Failed to save to server, saved locally:', error)
+  }
 }
 
-const removeFromCart = (cartItem: CartItem) => {
+const removeFromCart = async (cartItem: CartItem) => {
+  try {
+    // Remove from database
+    await axios.delete(`/cart/${cartItem.cart_id}`)
+  } catch (error) {
+    console.warn('Failed to remove from server:', error)
+  }
+  
+  // Remove from local cart
   cart.value = cart.value.filter(item => item.cart_id !== cartItem.cart_id)
 }
 
@@ -640,11 +669,19 @@ const clearCart = () => {
   cart.value = []
 }
 
-const updateCartItem = (item: CartItem, updates: Partial<CartItem>) => {
+const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
   const index = cart.value.findIndex(cartItem => cartItem.cart_id === item.cart_id)
 
   if (index !== -1) {
+    // Update locally
     cart.value[index] = { ...cart.value[index], ...updates }
+    
+    // Update on server
+    try {
+      await axios.put(`/cart/${item.cart_id}`, updates)
+    } catch (error) {
+      console.warn('Failed to update on server:', error)
+    }
   }
 }
 
@@ -654,14 +691,20 @@ const markCartItemAsDone = async (item: CartItem, price?: number) => {
     updateCartItem(item, { price: price })
   }
   
-  // Mark as done
-  updateCartItem(item, { is_done: true })
-  
-  // Also update in main items list
-  await toggleDone(item)
-  
-  // Remove from cart after marking as done
-  removeFromCart(item)
+  try {
+    // Mark as done in database
+    await axios.post(`/cart/${item.cart_id}/done`)
+    
+    // Mark as done locally
+    updateCartItem(item, { is_done: true })
+    
+    // Remove from cart after marking as done
+    removeFromCart(item)
+  } catch (error) {
+    console.warn('Failed to mark as done on server:', error)
+    // Still remove from cart locally
+    removeFromCart(item)
+  }
 }
 
 const getCartItemId = (item: CartItem): string => {
@@ -690,8 +733,9 @@ onMounted(async () => {
   // Setup offline sync
   offlineSyncService.setupAutoSync()
   
-  // Load items
+  // Load items and cart
   await loadItems()
+  await loadActiveCartItems()
   await updateSyncStatus()
   
   // Listen for online/offline events

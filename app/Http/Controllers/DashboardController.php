@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Item;
+use App\Models\CartHistory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,10 +17,10 @@ class DashboardController extends Controller
     {
         $month = $request->get('month', now()->format('Y-m'));
         
-        // Get done items for the selected month
-        $doneItems = Item::forMonth($month)
-            ->where('is_done', true)
-            ->orderBy('updated_at', 'desc')
+        // Get done cart items for the selected month
+        $doneItems = CartHistory::forMonth($month)
+            ->done()
+            ->orderBy('done_at', 'desc')
             ->get();
 
         // Calculate monthly summary
@@ -42,9 +42,8 @@ class DashboardController extends Controller
      */
     private function calculateMonthlySummary(string $month): array
     {
-        $doneItems = auth()->user()->items()
-            ->forMonth($month)
-            ->where('is_done', true)
+        $doneItems = CartHistory::forMonth($month)
+            ->done()
             ->get();
 
         $totalAmount = $doneItems->sum(function ($item) {
@@ -78,9 +77,8 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $month = sprintf('%d-%02d', $currentYear, $i);
             
-            $monthlyExpense = auth()->user()->items()
-                ->forMonth($month)
-                ->where('is_done', true)
+            $monthlyExpense = CartHistory::forMonth($month)
+                ->done()
                 ->get()
                 ->sum(function ($item) {
                     return $item->price * $item->quantity;
