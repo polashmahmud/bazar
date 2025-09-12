@@ -724,11 +724,14 @@ const markCartItemAsDone = async (item: CartItem, price?: number) => {
     updateCartItem(item, { is_done: true })
     
     // Remove from cart after marking as done
-    removeFromCart(item)
+    cart.value = cart.value.filter(cartItem => cartItem.cart_id !== item.cart_id)
+    
+    // Refresh items list to reflect done status
+    await loadItems()
   } catch (error) {
     console.error('Failed to mark as done on server:', error)
     // Still remove from cart locally
-    removeFromCart(item)
+    cart.value = cart.value.filter(cartItem => cartItem.cart_id !== item.cart_id)
   }
 }
 

@@ -55,6 +55,16 @@ class CartHistoryController extends Controller
 
         $cartItem = CartHistory::where('cart_id', $cartId)->firstOrFail();
         $cartItem->update(array_filter($validated));
+        
+        // If price is updated and there's a linked item, update the item's price too
+        if (isset($validated['price']) && $cartItem->item_id) {
+            $item = $cartItem->item;
+            if ($item) {
+                $item->update([
+                    'price' => $validated['price']
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -69,6 +79,17 @@ class CartHistoryController extends Controller
     {
         $cartItem = CartHistory::where('cart_id', $cartId)->firstOrFail();
         $cartItem->markAsDone();
+        
+        // If this cart item is linked to an Item, update the Item's is_done status as well
+        if ($cartItem->item_id) {
+            $item = $cartItem->item;
+            if ($item) {
+                $item->update([
+                    'is_done' => true,
+                    'price' => $cartItem->price, // Update the item's price with the cart item price
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,

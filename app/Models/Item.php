@@ -44,4 +44,21 @@ class Item extends Model
     {
         return $query->where('is_done', true);
     }
+    
+    /**
+     * Mark item as done
+     */
+    public function markAsDone($price = null)
+    {
+        $updateData = ['is_done' => true];
+        
+        // Update price if provided
+        if ($price !== null) {
+            $updateData['price'] = $price;
+        }
+        
+        $this->update($updateData);
+        
+        return $this;
+    }
 }

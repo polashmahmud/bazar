@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('quantity', 8, 2);
             $table->string('quantity_unit')->default('pieces'); // kg, pieces, dozen, etc.
-            $table->string('image')->nullable(); // Product image URL or path
+            $table->longText('image')->nullable(); // Product image URL or path
             $table->decimal('price', 10, 2);
             $table->string('month'); // Format: YYYY-MM
             $table->boolean('is_done')->default(false);

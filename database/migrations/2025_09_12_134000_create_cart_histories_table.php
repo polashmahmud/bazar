@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('item_id')->nullable()->constrained()->nullOnDelete();
             $table->string('cart_id')->unique(); // Unique cart instance ID
             $table->string('name');
-            $table->text('image')->nullable();
+            $table->longText('image')->nullable();
             $table->decimal('quantity', 8, 2)->default(1);
             $table->string('quantity_unit', 50)->default('পিস');
             $table->decimal('price', 10, 2)->default(0);
