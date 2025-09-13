@@ -119,7 +119,7 @@
                                             v-if="editingCartItem !== getCartItemId(item)"
                                             class="mb-4"
                                         >
-                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ formatQuantity(item.quantity) }} {{ item.quantity_unit }}</p>
                                             <div v-if="item.is_done" class="mt-2">
                                                 <span
                                                     class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-400"
@@ -133,7 +133,8 @@
                                         <div v-else-if="editingCartItem === getCartItemId(item)" class="mb-4 space-y-3">
                                             <div class="grid grid-cols-2 gap-2">
                                                 <input
-                                                    :value="item.quantity"
+                                                    ref="quantityInputRef"
+                                                    :value="formatQuantity(item.quantity)"
                                                     @input="
                                                         updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })
                                                     "
@@ -166,7 +167,7 @@
 
                                         <!-- Quantity Display for non-edit mode -->
                                         <div v-else class="mb-4 space-y-3">
-                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ formatQuantity(item.quantity) }} {{ item.quantity_unit }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -177,7 +178,7 @@
                                     class="mt-4 grid grid-cols-2 gap-2"
                                 >
                                     <button
-                                        @click="editingCartItem = getCartItemId(item)"
+                                        @click="startEditing(item)"
                                         class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
                                     >
                                         এডিট
@@ -243,7 +244,7 @@
 import MobileNavBar from '@/components/MobileNavBar.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 // Offline storage
 declare global {
@@ -281,6 +282,7 @@ const props = defineProps<Props>();
 // Reactive state
 const cart = ref<CartItem[]>(props.initialCartItems || []);
 const editingCartItem = ref<string | null>(null);
+const quantityInputRef = ref<HTMLInputElement | null>(null);
 const loading = ref(false);
 const isOffline = ref(!navigator.onLine);
 const completingItem = ref(false);
@@ -289,6 +291,29 @@ const completingItem = ref(false);
 const cartItemCount = computed(() => {
     return cart.value.length;
 });
+
+// Helper functions
+const formatQuantity = (quantity: number): string => {
+    // If it's a whole number, show without decimal places
+    if (quantity % 1 === 0) {
+        return quantity.toString();
+    }
+    // Otherwise show with up to 2 decimal places, removing trailing zeros
+    return parseFloat(quantity.toFixed(2)).toString();
+};
+
+const startEditing = async (item: CartItem) => {
+    editingCartItem.value = getCartItemId(item);
+    
+    // Wait for next tick to ensure the input is rendered
+    await nextTick();
+    
+    // Focus and select the quantity input
+    if (quantityInputRef.value) {
+        quantityInputRef.value.focus();
+        quantityInputRef.value.select();
+    }
+};
 
 // Methods
 const loadCartItems = async (forceRefresh = false) => {
