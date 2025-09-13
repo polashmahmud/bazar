@@ -4,14 +4,13 @@ use App\Http\Controllers\Auth\PinLoginController;
 use App\Http\Controllers\CartHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
-use App\Http\Controllers\PinAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// PIN Authentication Routes
-Route::get('/', [PinAuthController::class, 'showPinForm'])->name('pin.form');
-Route::post('/pin-verify', [PinAuthController::class, 'verifyPin'])->name('pin.verify');
-Route::post('/pin-logout', [PinAuthController::class, 'logout'])->name('pin.logout');
+// Landing Page
+Route::get('/', function () {
+    return Inertia::render('Landing/Index');
+})->name('landing');
 
 // Pin Login Routes (for registered users)
 Route::middleware('guest')->group(function () {
