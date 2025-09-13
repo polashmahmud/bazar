@@ -384,10 +384,38 @@ const goToDashboard = () => {
     router.visit('/dashboard');
 };
 
-const addToCart = (item: Item | OfflineItem) => {
-    // Add item to cart logic here
-    console.log('Adding to cart:', item);
-    cartItemCount.value++;
+const addToCart = async (item: Item | OfflineItem) => {
+    try {
+        const currentDate = new Date();
+        const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        const cartId = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        const response = await axios.post(
+            '/cart/add',
+            {
+                item_id: item.id,
+                cart_id: cartId,
+                quantity: 1,
+                quantity_unit: 'পিস',
+                price: item.price || 0,
+                month: currentMonth,
+            },
+            {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+            },
+        );
+
+        if (response.data.success) {
+            cartItemCount.value++;
+            console.log('Item added to cart successfully');
+        }
+    } catch (error) {
+        console.error('Error adding item to cart:', error);
+    }
 };
 
 const resetForm = () => {
