@@ -182,27 +182,16 @@
                                             </div>
                                         </div>
 
-                                        <!-- Done Mode - Price Input -->
-                                        <div v-else-if="completingCartItem === getCartItemId(item)" class="mb-4 space-y-3">
+                                        <!-- Quantity Display for non-edit mode -->
+                                        <div v-else class="mb-4 space-y-3">
                                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
-                                            <div class="flex items-center space-x-2">
-                                                <span class="text-gray-500 dark:text-gray-400">৳</span>
-                                                <input
-                                                    v-model="completionPrice"
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                                    placeholder="দাম লিখুন (ঐচ্ছিক)"
-                                                />
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons - Full Width -->
                                 <div
-                                    v-if="editingCartItem !== getCartItemId(item) && completingCartItem !== getCartItemId(item) && !item.is_done"
+                                    v-if="editingCartItem !== getCartItemId(item) && !item.is_done"
                                     class="mt-4 grid grid-cols-2 gap-2"
                                 >
                                     <button
@@ -213,10 +202,21 @@
                                     </button>
 
                                     <button
-                                        @click="startCompletion(item)"
-                                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
+                                        @click="markCartItemAsDone(item)"
+                                        :disabled="completingItem"
+                                        :class="[
+                                            'rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
+                                            completingItem ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500 hover:bg-green-600'
+                                        ]"
                                     >
-                                        সম্পন্ন
+                                        <span v-if="completingItem" class="flex items-center justify-center">
+                                            <svg class="mr-1 h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            সম্পন্ন করছি...
+                                        </span>
+                                        <span v-else>সম্পন্ন</span>
                                     </button>
                                 </div>
 
@@ -231,34 +231,6 @@
                                     <button
                                         @click="cancelEdit()"
                                         class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
-                                    >
-                                        বাতিল
-                                    </button>
-                                </div>
-
-                                <!-- Completion Mode Save/Cancel Buttons -->
-                                <div v-else-if="completingCartItem === getCartItemId(item)" class="mt-4 grid grid-cols-2 gap-2">
-                                    <button
-                                        @click="completeItem(item)"
-                                        :disabled="completingItem"
-                                        :class="[
-                                            'rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
-                                            completingItem ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500 hover:bg-green-600'
-                                        ]"
-                                    >
-                                        <span v-if="completingItem" class="flex items-center justify-center">
-                                            <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            সম্পন্ন করছি...
-                                        </span>
-                                        <span v-else>সম্পন্ন করুন</span>
-                                    </button>
-                                    <button
-                                        @click="cancelCompletion()"
-                                        :disabled="completingItem"
-                                        class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:bg-gray-400"
                                     >
                                         বাতিল
                                     </button>
@@ -443,11 +415,21 @@ const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
 };
 
 const markCartItemAsDone = async (item: CartItem) => {
+    // Prevent multiple simultaneous calls
+    if (completingItem.value) {
+        console.log('Already completing item, please wait...');
+        return;
+    }
+
     try {
-        // Update price if needed
+        completingItem.value = true;
+        console.log('Marking item as done:', item);
+
+        // Update price if needed (set default price if not set)
         const finalPrice = item.price > 0 ? item.price : 10;
 
         if (finalPrice !== item.price) {
+            console.log('Updating price from', item.price, 'to', finalPrice);
             await updateCartItem(item, { price: finalPrice });
         }
 
@@ -479,8 +461,13 @@ const markCartItemAsDone = async (item: CartItem) => {
         if (window.offlineStorage) {
             await window.offlineStorage.deleteCartItem(item.cart_id);
         }
+
+        console.log('Item marked as done successfully');
     } catch (error) {
         console.error('Failed to mark as done:', error);
+        alert('Failed to mark item as done. Please try again.');
+    } finally {
+        completingItem.value = false;
     }
 };
 
