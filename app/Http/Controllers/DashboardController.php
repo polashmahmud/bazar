@@ -34,6 +34,7 @@ class DashboardController extends Controller
             'currentMonth' => $month,
             'monthlySummary' => $monthlySummary,
             'yearlyComparison' => $yearlyComparison,
+            'user' => $request->user()->only(['id', 'name', 'email', 'pin_code']),
         ]);
     }
 

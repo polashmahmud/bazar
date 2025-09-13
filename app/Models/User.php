@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pin_code',
     ];
 
     /**
@@ -32,6 +33,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pin_code',
     ];
 
     /**
@@ -44,11 +46,48 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'pin_code_set_at' => 'datetime',
         ];
     }
 
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+
+    /**
+     * Check if user has set a pin code
+     */
+    public function hasPinCode(): bool
+    {
+        return !is_null($this->pin_code);
+    }
+
+    /**
+     * Set pin code for the user
+     */
+    public function setPinCode(string $pinCode): bool
+    {
+        $this->pin_code = $pinCode;
+        $this->pin_code_set_at = now();
+        return $this->save();
+    }
+
+    /**
+     * Verify pin code
+     */
+    public function verifyPinCode(string $pinCode): bool
+    {
+        return $this->pin_code === $pinCode;
+    }
+
+    /**
+     * Remove pin code
+     */
+    public function removePinCode(): bool
+    {
+        $this->pin_code = null;
+        $this->pin_code_set_at = null;
+        return $this->save();
     }
 }

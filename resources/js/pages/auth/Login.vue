@@ -78,9 +78,15 @@ defineProps<{
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+            <div class="space-y-2 text-center text-sm text-muted-foreground">
+                <div>
+                    Have a pin code?
+                    <TextLink href="/pin-login" :tabindex="6" class="underline underline-offset-4">Login with Pin</TextLink>
+                </div>
+                <div>
+                    Don't have an account?
+                    <TextLink :href="register()" :tabindex="7">Sign up</TextLink>
+                </div>
             </div>
         </Form>
     </AuthBase>

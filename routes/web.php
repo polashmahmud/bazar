@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\PinLoginController;
 use App\Http\Controllers\CartHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
@@ -11,6 +12,19 @@ use Inertia\Inertia;
 Route::get('/', [PinAuthController::class, 'showPinForm'])->name('pin.form');
 Route::post('/pin-verify', [PinAuthController::class, 'verifyPin'])->name('pin.verify');
 Route::post('/pin-logout', [PinAuthController::class, 'logout'])->name('pin.logout');
+
+// Pin Login Routes (for registered users)
+Route::middleware('guest')->group(function () {
+    Route::get('/pin-login', [PinLoginController::class, 'show'])->name('pin.login.show');
+    Route::post('/pin-login', [PinLoginController::class, 'store'])->name('pin.login.store');
+});
+
+// Pin Setup Routes (for authenticated users)
+Route::middleware('auth')->group(function () {
+    Route::get('/pin-setup', [PinLoginController::class, 'showSetup'])->name('pin.setup.show');
+    Route::post('/pin-setup', [PinLoginController::class, 'setup'])->name('pin.setup.store');
+    Route::post('/pin-remove', [PinLoginController::class, 'remove'])->name('pin.remove');
+});
 
 // Protected Routes
 Route::middleware(['auth'])->group(function () {

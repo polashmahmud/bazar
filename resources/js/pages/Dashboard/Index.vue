@@ -14,6 +14,83 @@
 
                     <!-- Action Buttons -->
                     <div class="flex items-center space-x-2 sm:space-x-4">
+                        <!-- Profile Icon -->
+                        <div class="relative">
+                            <button
+                                @click="toggleProfileMenu"
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                            >
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    />
+                                </svg>
+                            </button>
+
+                            <!-- Profile Dropdown -->
+                            <div
+                                v-if="showProfileMenu"
+                                class="absolute right-0 z-50 mt-2 w-48 rounded-md border bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                            >
+                                <div class="border-b px-4 py-2 text-sm text-gray-700 dark:border-gray-600 dark:text-gray-300">
+                                    <p class="font-medium">{{ user.name }}</p>
+                                    <p class="text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                                </div>
+
+                                <button
+                                    v-if="!user.pin_code"
+                                    @click="goToPinSetup"
+                                    class="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                        />
+                                    </svg>
+                                    <span>Set Pin Code</span>
+                                </button>
+
+                                <button
+                                    v-if="user.pin_code"
+                                    @click="removePinCode"
+                                    class="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                    <span>Remove Pin Code</span>
+                                </button>
+
+                                <hr class="dark:border-gray-600" />
+
+                                <button
+                                    @click="logout"
+                                    class="flex w-full items-center space-x-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                        />
+                                    </svg>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Theme Toggle (hidden on mobile) -->
                         <div class="hidden sm:block">
                             <AppearanceTabs />
@@ -212,7 +289,7 @@ import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import MobileNavBar from '@/components/MobileNavBar.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 // Define icons as simple components
 const CheckIcon = {
@@ -270,6 +347,12 @@ interface Props {
     currentMonth: string;
     monthlySummary: MonthlySummary;
     yearlyComparison: any[];
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        pin_code?: string;
+    };
 }
 
 const props = defineProps<Props>();
@@ -277,6 +360,50 @@ const props = defineProps<Props>();
 // Reactive state
 const selectedMonth = ref(props.currentMonth);
 const cartCount = ref(0);
+const showProfileMenu = ref(false);
+
+// Profile menu methods
+const toggleProfileMenu = () => {
+    showProfileMenu.value = !showProfileMenu.value;
+};
+
+const goToPinSetup = () => {
+    showProfileMenu.value = false;
+    router.visit('/pin-setup');
+};
+
+const removePinCode = async () => {
+    if (confirm('Are you sure you want to remove your pin code?')) {
+        try {
+            await axios.post('/pin-remove');
+            showProfileMenu.value = false;
+            // Reload page to update user data
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to remove pin code:', error);
+            alert('Failed to remove pin code. Please try again.');
+        }
+    }
+};
+
+// Close profile menu when clicking outside
+const closeProfileMenu = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.relative')) {
+        showProfileMenu.value = false;
+    }
+};
+
+// Add event listener for closing menu
+onMounted(() => {
+    loadCartCount();
+    document.addEventListener('click', closeProfileMenu);
+});
+
+// Remove event listener on unmount
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeProfileMenu);
+});
 
 // Computed properties
 const availableMonths = computed(() => {
@@ -334,11 +461,6 @@ const logout = async () => {
         }
     }
 };
-
-// Load cart count on mount
-onMounted(() => {
-    loadCartCount();
-});
 </script>
 
 <style scoped>
