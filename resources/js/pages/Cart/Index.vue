@@ -54,71 +54,78 @@
                             class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
                         >
                             <div class="p-4">
-                                <!-- Item Image -->
-                                <div class="mb-3 h-32 w-full rounded-lg bg-gray-100 dark:bg-gray-700">
-                                    <img
-                                        v-if="(item as any).image"
-                                        :src="(item as any).image"
-                                        :alt="item.name"
-                                        class="h-full w-full rounded-lg object-cover"
-                                    />
-                                    <div v-else class="flex h-full w-full items-center justify-center">
-                                        <div class="text-4xl">📦</div>
-                                    </div>
-                                </div>
-
-                                <!-- Product Name -->
-                                <h4 class="mb-2 text-center text-lg font-medium text-gray-900 dark:text-white">
-                                    {{ item.name }}
-                                </h4>
-
-                                <!-- Quantity Display/Edit -->
-                                <div v-if="editingCartItem !== getCartItemId(item)" class="mb-4 text-center">
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
-                                    <div v-if="item.is_done" class="mt-2">
-                                        <span
-                                            class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                        >
-                                            ✅ সম্পন্ন
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Edit Mode for Quantity -->
-                                <div v-else class="mb-4 space-y-3">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <input
-                                            :value="item.quantity"
-                                            @input="updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                            placeholder="পরিমাণ"
+                                <div class="flex space-x-4">
+                                    <!-- Item Image - Left Side -->
+                                    <div class="h-20 w-20 flex-shrink-0 rounded-lg bg-gray-100 dark:bg-gray-700">
+                                        <img
+                                            v-if="(item as any).image"
+                                            :src="(item as any).image"
+                                            :alt="item.name"
+                                            class="h-full w-full rounded-lg object-cover"
                                         />
-                                        <select
-                                            :value="item.quantity_unit"
-                                            @change="updateCartItem(item, { quantity_unit: ($event.target as HTMLSelectElement).value })"
-                                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        >
-                                            <option value="কেজি">কেজি</option>
-                                            <option value="গ্রাম">গ্রাম</option>
-                                            <option value="পিস">পিস</option>
-                                            <option value="ডজন">ডজন</option>
-                                            <option value="প্যাকেট">প্যাকেট</option>
-                                            <option value="বোতল">বোতল</option>
-                                            <option value="ব্যাগ">ব্যাগ</option>
-                                            <option value="লিটার">লিটার</option>
-                                            <option value="মিলি">মিলি</option>
-                                            <option value="কাপ">কাপ</option>
-                                            <option value="টিন">টিন</option>
-                                            <option value="বক্স">বক্স</option>
-                                        </select>
+                                        <div v-else class="flex h-full w-full items-center justify-center">
+                                            <div class="text-2xl">📦</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Content - Right Side -->
+                                    <div class="min-w-0 flex-1">
+                                        <!-- Product Name -->
+                                        <h4 class="mb-2 truncate text-lg font-medium text-gray-900 dark:text-white">
+                                            {{ item.name }}
+                                        </h4>
+
+                                        <!-- Quantity Display/Edit -->
+                                        <div v-if="editingCartItem !== getCartItemId(item)" class="mb-4">
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
+                                            <div v-if="item.is_done" class="mt-2">
+                                                <span
+                                                    class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                                >
+                                                    ✅ সম্পন্ন
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Edit Mode for Quantity -->
+                                        <div v-else class="mb-4 space-y-3">
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <input
+                                                    :value="item.quantity"
+                                                    @input="
+                                                        updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })
+                                                    "
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                    placeholder="পরিমাণ"
+                                                />
+                                                <select
+                                                    :value="item.quantity_unit"
+                                                    @change="updateCartItem(item, { quantity_unit: ($event.target as HTMLSelectElement).value })"
+                                                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                >
+                                                    <option value="কেজি">কেজি</option>
+                                                    <option value="গ্রাম">গ্রাম</option>
+                                                    <option value="পিস">পিস</option>
+                                                    <option value="ডজন">ডজন</option>
+                                                    <option value="প্যাকেট">প্যাকেট</option>
+                                                    <option value="বোতল">বোতল</option>
+                                                    <option value="ব্যাগ">ব্যাগ</option>
+                                                    <option value="লিটার">লিটার</option>
+                                                    <option value="মিলি">মিলি</option>
+                                                    <option value="কাপ">কাপ</option>
+                                                    <option value="টিন">টিন</option>
+                                                    <option value="বক্স">বক্স</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons - Full Width -->
-                                <div v-if="editingCartItem !== getCartItemId(item) && !item.is_done" class="grid grid-cols-3 gap-2">
+                                <div v-if="editingCartItem !== getCartItemId(item) && !item.is_done" class="mt-4 grid grid-cols-3 gap-2">
                                     <button
                                         @click="editingCartItem = getCartItemId(item)"
                                         class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
@@ -142,7 +149,7 @@
                                 </div>
 
                                 <!-- Edit Mode Save/Cancel Buttons -->
-                                <div v-else-if="editingCartItem === getCartItemId(item)" class="grid grid-cols-2 gap-2">
+                                <div v-else-if="editingCartItem === getCartItemId(item)" class="mt-4 grid grid-cols-2 gap-2">
                                     <button
                                         @click="saveEdit()"
                                         class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
