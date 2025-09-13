@@ -2,12 +2,23 @@
     <div class="min-h-screen bg-gray-50 pb-16 transition-colors duration-300 sm:pb-0 dark:bg-gray-900">
         <!-- Header -->
         <div class="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <!-- Offline Banner -->
+            <div v-if="isOffline" class="bg-orange-500 px-4 py-2 text-center text-sm text-white">
+                📱 You're offline. Changes will sync when you're back online.
+            </div>
+
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     <h1 class="flex items-center text-xl font-bold text-gray-900 dark:text-white">
                         <span class="mr-2">🛒</span> Shopping Cart
                         <span class="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-sm text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                             {{ cartItemCount }} items
+                        </span>
+                        <span
+                            v-if="isOffline"
+                            class="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                        >
+                            OFFLINE
                         </span>
                     </h1>
                 </div>
@@ -233,6 +244,13 @@ import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 
+// Offline storage
+declare global {
+    interface Window {
+        offlineStorage: any;
+    }
+}
+
 // Interfaces
 interface CartItem {
     cart_id: string;
@@ -253,6 +271,7 @@ const editingCartItem = ref<string | null>(null);
 const completingCartItem = ref<string | null>(null);
 const completionPrice = ref(0);
 const loading = ref(false);
+const isOffline = ref(!navigator.onLine);
 
 // Computed properties
 const cartItemCount = computed(() => {
@@ -271,10 +290,35 @@ const cartTotal = computed(() => {
 const loadCartItems = async () => {
     try {
         loading.value = true;
-        const response = await axios.get('/cart/active');
-        cart.value = response.data;
+
+        if (navigator.onLine) {
+            // Try to load from server
+            const response = await axios.get('/cart/active');
+            cart.value = response.data;
+
+            // Save to offline storage
+            if (window.offlineStorage) {
+                for (const item of cart.value) {
+                    await window.offlineStorage.saveCartItem(item);
+                }
+            }
+        } else {
+            // Load from offline storage
+            if (window.offlineStorage) {
+                cart.value = await window.offlineStorage.getCartItems();
+            }
+        }
     } catch (error) {
         console.error('Failed to load cart items:', error);
+
+        // Fallback to offline storage
+        if (window.offlineStorage) {
+            try {
+                cart.value = await window.offlineStorage.getCartItems();
+            } catch (offlineError) {
+                console.error('Failed to load from offline storage:', offlineError);
+            }
+        }
     } finally {
         loading.value = false;
     }
@@ -291,11 +335,38 @@ const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
         // Update locally
         cart.value[index] = { ...cart.value[index], ...updates };
 
-        // Update on server
-        try {
-            await axios.put(`/cart/${item.cart_id}`, updates);
-        } catch (error) {
-            console.error('Failed to update on server:', error);
+        // Save to offline storage
+        if (window.offlineStorage) {
+            await window.offlineStorage.updateCartItem(item.cart_id, updates);
+        }
+
+        // Update on server if online
+        if (navigator.onLine) {
+            try {
+                await axios.put(`/cart/${item.cart_id}`, updates);
+            } catch (error) {
+                console.error('Failed to update on server:', error);
+
+                // Add to pending actions for sync later
+                if (window.offlineStorage) {
+                    await window.offlineStorage.addPendingAction({
+                        action_type: 'cart_update',
+                        data: updates,
+                        url: `/cart/${item.cart_id}`,
+                        method: 'PUT',
+                    });
+                }
+            }
+        } else {
+            // Add to pending actions for sync when online
+            if (window.offlineStorage) {
+                await window.offlineStorage.addPendingAction({
+                    action_type: 'cart_update',
+                    data: updates,
+                    url: `/cart/${item.cart_id}`,
+                    method: 'PUT',
+                });
+            }
         }
     }
 };
@@ -309,11 +380,28 @@ const markCartItemAsDone = async (item: CartItem) => {
             await updateCartItem(item, { price: finalPrice });
         }
 
-        // Mark as done in database
-        await axios.post(`/cart/${item.cart_id}/done`);
+        if (navigator.onLine) {
+            // Mark as done in database
+            await axios.post(`/cart/${item.cart_id}/done`);
+        } else {
+            // Add to pending actions
+            if (window.offlineStorage) {
+                await window.offlineStorage.addPendingAction({
+                    action_type: 'cart_update',
+                    data: { is_done: true, done_at: new Date().toISOString() },
+                    url: `/cart/${item.cart_id}/done`,
+                    method: 'POST',
+                });
+            }
+        }
 
-        // Remove from cart
+        // Remove from cart locally
         cart.value = cart.value.filter((cartItem) => cartItem.cart_id !== item.cart_id);
+
+        // Remove from offline storage
+        if (window.offlineStorage) {
+            await window.offlineStorage.deleteCartItem(item.cart_id);
+        }
     } catch (error) {
         console.error('Failed to mark as done:', error);
     }
@@ -321,11 +409,28 @@ const markCartItemAsDone = async (item: CartItem) => {
 
 const removeFromCart = async (item: CartItem) => {
     try {
-        // Remove from database
-        await axios.delete(`/cart/${item.cart_id}`);
+        if (navigator.onLine) {
+            // Remove from database
+            await axios.delete(`/cart/${item.cart_id}`);
+        } else {
+            // Add to pending actions
+            if (window.offlineStorage) {
+                await window.offlineStorage.addPendingAction({
+                    action_type: 'cart_delete',
+                    data: null,
+                    url: `/cart/${item.cart_id}`,
+                    method: 'DELETE',
+                });
+            }
+        }
 
         // Remove from local cart
         cart.value = cart.value.filter((cartItem) => cartItem.cart_id !== item.cart_id);
+
+        // Remove from offline storage
+        if (window.offlineStorage) {
+            await window.offlineStorage.deleteCartItem(item.cart_id);
+        }
     } catch (error) {
         console.error('Failed to remove from cart:', error);
     }
@@ -415,5 +520,20 @@ const goToItems = () => {
 // Load cart items on mount
 onMounted(() => {
     loadCartItems();
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+        isOffline.value = false;
+        loadCartItems(); // Refresh data when back online
+
+        // Trigger sync
+        if (window.offlineStorage) {
+            window.offlineStorage.syncData();
+        }
+    });
+
+    window.addEventListener('offline', () => {
+        isOffline.value = true;
+    });
 });
 </script>

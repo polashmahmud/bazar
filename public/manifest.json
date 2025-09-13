@@ -1,0 +1,93 @@
+{
+    "name": "Bazar - Shopping List Manager",
+    "short_name": "Bazar",
+    "description": "একটি সহজ শপিং লিস্ট ম্যানেজার অ্যাপ",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#3b82f6",
+    "orientation": "portrait-primary",
+    "categories": ["shopping", "productivity"],
+    "lang": "bn",
+    "dir": "ltr",
+    "icons": [
+        {
+            "src": "/pwa/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/pwa/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/pwa/screenshot-wide.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "/pwa/screenshot-narrow.png",
+            "sizes": "720x1280",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "আইটেম যোগ করুন",
+            "short_name": "আইটেম যোগ",
+            "description": "নতুন আইটেম যোগ করুন",
+            "url": "/items",
+            "icons": [{ "src": "/pwa/icon-192x192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "কার্ট দেখুন",
+            "short_name": "কার্ট",
+            "description": "আপনার শপিং কার্ট দেখুন",
+            "url": "/cart",
+            "icons": [{ "src": "/pwa/icon-192x192.png", "sizes": "192x192" }]
+        }
+    ]
+}

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="bn">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>অফলাইন - Bazar</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-align: center;
+            }
+
+            .offline-container {
+                max-width: 400px;
+                padding: 2rem;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+
+            .offline-icon {
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                opacity: 0.8;
+            }
+
+            .offline-title {
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-bottom: 1rem;
+                color: #fff;
+            }
+
+            .offline-message {
+                font-size: 1rem;
+                line-height: 1.6;
+                margin-bottom: 2rem;
+                opacity: 0.9;
+            }
+
+            .retry-button {
+                background: rgba(255, 255, 255, 0.2);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 50px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
+                margin: 0.5rem;
+            }
+
+            .retry-button:hover {
+                background: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            }
+
+            .offline-features {
+                margin-top: 2rem;
+                text-align: left;
+            }
+
+            .feature-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .feature-icon {
+                margin-right: 0.5rem;
+                color: #4ade80;
+            }
+
+            @media (max-width: 480px) {
+                .offline-container {
+                    margin: 1rem;
+                    padding: 1.5rem;
+                }
+
+                .offline-icon {
+                    font-size: 3rem;
+                }
+
+                .offline-title {
+                    font-size: 1.25rem;
+                }
+            }
+
+            .connection-status {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+
+            .status-offline {
+                background: rgba(239, 68, 68, 0.9);
+                color: white;
+            }
+
+            .status-online {
+                background: rgba(34, 197, 94, 0.9);
+                color: white;
+            }
+
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="connectionStatus" class="connection-status status-offline pulse">📶 ইন্টারনেট সংযোগ নেই</div>
+
+        <div class="offline-container">
+            <div class="offline-icon">📱</div>
+            <h1 class="offline-title">আপনি অফলাইনে আছেন</h1>
+            <p class="offline-message">ইন্টারনেট সংযোগ নেই, কিন্তু চিন্তা করবেন না! আপনি এখনও কিছু ফিচার ব্যবহার করতে পারেন।</p>
+
+            <div class="offline-features">
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    সেভ করা আইটেম দেখুন
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    কার্ট ডেটা দেখুন
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    অফলাইন মোডে কাজ করুন
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⏳</span>
+                    অনলাইন হলে সিঙ্ক হবে
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem">
+                <button class="retry-button" onclick="window.location.reload()">🔄 আবার চেষ্টা করুন</button>
+                <a href="/" class="retry-button"> 🏠 হোম পেজে যান </a>
+            </div>
+        </div>
+
+        <script>
+            // Monitor connection status
+            function updateConnectionStatus() {
+                const statusEl = document.getElementById('connectionStatus');
+
+                if (navigator.onLine) {
+                    statusEl.textContent = '✅ ইন্টারনেট সংযোগ ফিরে এসেছে';
+                    statusEl.className = 'connection-status status-online';
+
+                    // Auto reload after 2 seconds when back online
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusEl.textContent = '📶 ইন্টারনেট সংযোগ নেই';
+                    statusEl.className = 'connection-status status-offline pulse';
+                }
+            }
+
+            // Check connection status on page load
+            updateConnectionStatus();
+
+            // Listen for connection changes
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+
+            // Retry connection every 5 seconds
+            setInterval(() => {
+                if (!navigator.onLine) {
+                    // Try to fetch a small resource to check connectivity
+                    fetch('/manifest.json', {
+                        method: 'HEAD',
+                        cache: 'no-cache',
+                    })
+                        .then(() => {
+                            // If successful, connection is back
+                            updateConnectionStatus();
+                        })
+                        .catch(() => {
+                            // Still offline
+                        });
+                }
+            }, 5000);
+
+            // Service Worker registration check
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then((registration) => {
+                    console.log('Service Worker ready for offline page');
+                });
+            }
+        </script>
+    </body>
+</html>

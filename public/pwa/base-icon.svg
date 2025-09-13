@@ -1,0 +1,31 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)" rx="80"/>
+  
+  <!-- Shopping bag icon -->
+  <g transform="translate(128, 100)">
+    <!-- Bag body -->
+    <rect x="32" y="80" width="192" height="240" fill="white" fill-opacity="0.9" rx="20"/>
+    
+    <!-- Bag handles -->
+    <circle cx="96" cy="64" r="32" fill="none" stroke="white" stroke-width="16" stroke-opacity="0.9"/>
+    <circle cx="160" cy="64" r="32" fill="none" stroke="white" stroke-width="16" stroke-opacity="0.9"/>
+    
+    <!-- Bazar text -->
+    <text x="128" y="280" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="36" font-weight="bold">
+      BAZAR
+    </text>
+    
+    <!-- Bengali text -->
+    <text x="128" y="310" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="normal" fill-opacity="0.8">
+      Shopping List
+    </text>
+  </g>
+</svg>
