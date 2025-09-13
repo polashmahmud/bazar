@@ -9,6 +9,7 @@ use Carbon\Carbon;
 class CartHistory extends Model
 {
     protected $fillable = [
+        'user_id',
         'item_id',
         'cart_id',
         'name',
@@ -27,6 +28,14 @@ class CartHistory extends Model
         'is_done' => 'boolean',
         'done_at' => 'datetime'
     ];
+
+    /**
+     * Get the related user
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get the related item

@@ -55,6 +55,11 @@ class User extends Authenticatable
         return $this->hasMany(Item::class);
     }
 
+    public function cartHistories()
+    {
+        return $this->hasMany(CartHistory::class);
+    }
+
     /**
      * Check if user has set a pin code
      */

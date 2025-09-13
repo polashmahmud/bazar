@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CartHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
@@ -17,8 +18,9 @@ class DashboardController extends Controller
     {
         $month = $request->get('month', now()->format('Y-m'));
         
-        // Get done cart items for the selected month
-        $doneItems = CartHistory::forMonth($month)
+        // Get done cart items for the selected month (only for authenticated user)
+        $doneItems = CartHistory::where('user_id', Auth::id())
+            ->forMonth($month)
             ->done()
             ->orderBy('done_at', 'desc')
             ->get();
@@ -43,7 +45,8 @@ class DashboardController extends Controller
      */
     private function calculateMonthlySummary(string $month): array
     {
-        $doneItems = CartHistory::forMonth($month)
+        $doneItems = CartHistory::where('user_id', Auth::id())
+            ->forMonth($month)
             ->done()
             ->get();
 
@@ -78,7 +81,8 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $month = sprintf('%d-%02d', $currentYear, $i);
             
-            $monthlyExpense = CartHistory::forMonth($month)
+            $monthlyExpense = CartHistory::where('user_id', Auth::id())
+                ->forMonth($month)
                 ->done()
                 ->get()
                 ->sum(function ($item) {

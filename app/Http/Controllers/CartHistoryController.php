@@ -6,6 +6,7 @@ use App\Models\CartHistory;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class CartHistoryController extends Controller
 {
@@ -24,9 +25,15 @@ class CartHistoryController extends Controller
         ]);
 
         $item = Item::findOrFail($validated['item_id']);
+        
+        // Ensure user can only add their own items to cart
+        if ($item->user_id !== Auth::id()) {
+            abort(403, 'You can only add your own items to cart');
+        }
 
         $cartHistory = CartHistory::create([
             'item_id' => $item->id,
+            'user_id' => Auth::id(), // Add user_id to cart history
             'cart_id' => $validated['cart_id'],
             'name' => $item->name,
             'image' => $item->image,
@@ -54,12 +61,18 @@ class CartHistoryController extends Controller
         ]);
 
         $cartItem = CartHistory::where('cart_id', $cartId)->firstOrFail();
+        
+        // Ensure user can only update their own cart items
+        if ($cartItem->user_id !== Auth::id()) {
+            abort(403, 'You can only update your own cart items');
+        }
+        
         $cartItem->update(array_filter($validated));
         
         // If price is updated and there's a linked item, update the item's price too
         if (isset($validated['price']) && $cartItem->item_id) {
             $item = $cartItem->item;
-            if ($item) {
+            if ($item && $item->user_id === Auth::id()) {
                 $item->update([
                     'price' => $validated['price']
                 ]);
@@ -78,6 +91,12 @@ class CartHistoryController extends Controller
     public function markAsDone(string $cartId): JsonResponse
     {
         $cartItem = CartHistory::where('cart_id', $cartId)->firstOrFail();
+        
+        // Ensure user can only mark their own cart items as done
+        if ($cartItem->user_id !== Auth::id()) {
+            abort(403, 'You can only mark your own cart items as done');
+        }
+        
         $cartItem->markAsDone();
 
         return response()->json([
@@ -92,6 +111,12 @@ class CartHistoryController extends Controller
     public function removeFromCart(string $cartId): JsonResponse
     {
         $cartItem = CartHistory::where('cart_id', $cartId)->firstOrFail();
+        
+        // Ensure user can only remove their own cart items
+        if ($cartItem->user_id !== Auth::id()) {
+            abort(403, 'You can only remove your own cart items');
+        }
+        
         $cartItem->delete();
 
         return response()->json([
@@ -104,7 +129,9 @@ class CartHistoryController extends Controller
      */
     public function getActiveCartItems(): JsonResponse
     {
-        $cartItems = CartHistory::where('is_done', false)
+        // Only show cart items belonging to the authenticated user
+        $cartItems = CartHistory::where('user_id', Auth::id())
+            ->where('is_done', false)
             ->orderBy('created_at', 'desc')
             ->get();
 

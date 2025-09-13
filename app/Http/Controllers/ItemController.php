@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,7 +16,8 @@ class ItemController extends Controller
      */
     public function index(Request $request): Response
     {
-        $items = Item::orderBy('created_at', 'desc')->get();
+        // Only show items belonging to the authenticated user
+        $items = Auth::user()->items()->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Items/Index', [
             'items' => $items,
@@ -27,9 +30,9 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         // Debug logging
-        \Log::info('Item Store Request', [
-            'user_id' => auth()->id(),
-            'user_authenticated' => auth()->check(),
+        Log::info('Item Store Request', [
+            'user_id' => Auth::id(),
+            'user_authenticated' => Auth::check(),
             'request_data' => $request->all()
         ]);
 
@@ -48,19 +51,19 @@ class ItemController extends Controller
             $validated['quantity_unit'] = $validated['quantity_unit'] ?? 'পিস';
             $validated['price'] = $validated['price'] ?? 0;
 
-            $item = auth()->user()->items()->create([
+            $item = Auth::user()->items()->create([
                 ...$validated,
                 'synced_at' => now(),
             ]);
 
-            \Log::info('Item Created Successfully', ['item_id' => $item->id]);
+            Log::info('Item Created Successfully', ['item_id' => $item->id]);
 
             return response()->json([
                 'success' => true,
                 'item' => $item,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Item Store Error', [
+            Log::error('Item Store Error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -78,7 +81,7 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         // Ensure user can only update their own items
-        if ($item->user_id !== auth()->id()) {
+        if ($item->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -109,7 +112,7 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         // Ensure user can only delete their own items
-        if ($item->user_id !== auth()->id()) {
+        if ($item->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -148,7 +151,7 @@ class ItemController extends Controller
             $itemData['quantity_unit'] = $itemData['quantity_unit'] ?? 'পিস';
             $itemData['price'] = $itemData['price'] ?? 0;
             
-            $item = auth()->user()->items()->create([
+            $item = Auth::user()->items()->create([
                 ...$itemData,
                 'synced_at' => now(),
             ]);
