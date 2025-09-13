@@ -43,9 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/items/bulk-sync', [ItemController::class, 'bulkSync'])->name('items.bulk-sync');
     
     // Cart routes
-    Route::get('/cart', function() {
-        return Inertia::render('Cart/Index');
-    })->name('cart.index');
+    Route::get('/cart', [CartHistoryController::class, 'index'])->name('cart.index');
     
     // Cart History API routes
     Route::post('/cart/add', [CartHistoryController::class, 'addToCart'])->name('cart.add');

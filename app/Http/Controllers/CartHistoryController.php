@@ -7,9 +7,26 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class CartHistoryController extends Controller
 {
+    /**
+     * Display the cart page with active cart items
+     */
+    public function index()
+    {
+        $activeCartItems = CartHistory::where('user_id', Auth::id())
+            ->where('is_done', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('Cart/Index', [
+            'initialCartItems' => $activeCartItems,
+            'user' => Auth::user()
+        ]);
+    }
+
     /**
      * Add item to cart history
      */

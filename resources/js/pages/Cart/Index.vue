@@ -27,8 +27,43 @@
 
         <!-- Main Content -->
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Loading Skeleton -->
+            <div v-if="loading" class="space-y-4">
+                <div class="animate-pulse">
+                    <!-- Mobile actions skeleton -->
+                    <div
+                        class="mb-4 flex justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm md:hidden dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div class="h-4 w-20 rounded bg-gray-200 dark:bg-gray-600"></div>
+                        <div class="h-8 w-24 rounded bg-gray-200 dark:bg-gray-600"></div>
+                    </div>
+
+                    <!-- Cart items skeleton -->
+                    <div class="space-y-4">
+                        <div
+                            v-for="n in 3"
+                            :key="n"
+                            class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                        >
+                            <div class="flex space-x-4">
+                                <div class="h-16 w-16 rounded-lg bg-gray-200 dark:bg-gray-600"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-600"></div>
+                                    <div class="h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-600"></div>
+                                    <div class="flex space-x-2">
+                                        <div class="h-8 w-16 rounded bg-gray-200 dark:bg-gray-600"></div>
+                                        <div class="h-8 w-20 rounded bg-gray-200 dark:bg-gray-600"></div>
+                                    </div>
+                                </div>
+                                <div class="h-6 w-16 rounded bg-gray-200 dark:bg-gray-600"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Empty State -->
-            <div v-if="cart.length === 0" class="py-12 text-center">
+            <div v-else-if="cart.length === 0" class="py-12 text-center">
                 <div class="mb-4 text-6xl">🛒</div>
                 <h3 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">Your cart is empty</h3>
                 <p class="mx-auto mb-6 max-w-md text-gray-500 dark:text-gray-400">Add some items to your cart to get started</p>
@@ -265,8 +300,20 @@ interface CartItem {
     month: string;
 }
 
+// Props from Laravel controller
+interface Props {
+    initialCartItems: CartItem[];
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    };
+}
+
+const props = defineProps<Props>();
+
 // Reactive state
-const cart = ref<CartItem[]>([]);
+const cart = ref<CartItem[]>(props.initialCartItems || []);
 const editingCartItem = ref<string | null>(null);
 const completingCartItem = ref<string | null>(null);
 const completionPrice = ref(0);
@@ -287,7 +334,12 @@ const cartTotal = computed(() => {
 });
 
 // Methods
-const loadCartItems = async () => {
+const loadCartItems = async (forceRefresh = false) => {
+    // Skip loading if we already have data and it's not a forced refresh
+    if (cart.value.length > 0 && !forceRefresh) {
+        return;
+    }
+
     try {
         loading.value = true;
 
@@ -303,8 +355,8 @@ const loadCartItems = async () => {
                 }
             }
         } else {
-            // Load from offline storage
-            if (window.offlineStorage) {
+            // Load from offline storage only if we don't have initial data
+            if (window.offlineStorage && cart.value.length === 0) {
                 cart.value = await window.offlineStorage.getCartItems();
             }
         }
@@ -519,12 +571,15 @@ const goToItems = () => {
 
 // Load cart items on mount
 onMounted(() => {
-    loadCartItems();
+    // Only load if we don't have initial data or we're offline with fresh data
+    if (cart.value.length === 0 || (!navigator.onLine && window.offlineStorage)) {
+        loadCartItems();
+    }
 
     // Listen for online/offline events
     window.addEventListener('online', () => {
         isOffline.value = false;
-        loadCartItems(); // Refresh data when back online
+        loadCartItems(true); // Force refresh when back online
 
         // Trigger sync
         if (window.offlineStorage) {

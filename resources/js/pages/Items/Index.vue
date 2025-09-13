@@ -86,8 +86,27 @@
 
         <!-- Main Content -->
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Loading Skeleton -->
+            <div
+                v-if="allItems.length === 0 && !filteredItems.length"
+                class="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+            >
+                <div
+                    v-for="n in 8"
+                    :key="n"
+                    class="animate-pulse overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div class="aspect-square bg-gray-200 dark:bg-gray-600"></div>
+                    <div class="p-2 sm:p-3">
+                        <div class="mb-2 h-4 rounded bg-gray-200 dark:bg-gray-600"></div>
+                        <div class="mb-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-600"></div>
+                        <div class="h-8 rounded bg-gray-200 dark:bg-gray-600"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Items Grid -->
-            <div v-if="filteredItems.length > 0" class="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <div v-else-if="filteredItems.length > 0" class="grid grid-cols-3 gap-1 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                 <div
                     v-for="item in filteredItems"
                     :key="'offline_id' in item ? item.offline_id : item.id"
@@ -260,7 +279,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Reactive state
-const allItems = ref<(Item | OfflineItem)[]>([]);
+const allItems = ref<(Item | OfflineItem)[]>(props.items || []);
 const showAddModal = ref(false);
 const isSubmitting = ref(false);
 const isOnline = ref(navigator.onLine);
@@ -281,8 +300,8 @@ const filteredItems = computed(() => {
 
 // Methods
 const loadItems = async () => {
-    // Load server items
-    const serverItems = props.items;
+    // If we already have server items from props, just load offline items
+    const serverItems = allItems.value.filter((item) => !('offline_id' in item));
 
     // Load offline items
     const offlineItems = await offlineSyncService.getAllOffline();
@@ -437,6 +456,7 @@ const resetForm = () => {
 
 // Update cart count on mount
 onMounted(() => {
+    // Only load offline items, since server items are already in props
     loadItems();
     loadCartCount();
     updateSyncStatus();

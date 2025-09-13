@@ -22,14 +22,25 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
                 compilerOptions: {
-                    isCustomElement: (tag) => tag.includes('-')
-                }
+                    isCustomElement: (tag) => tag.includes('-'),
+                },
             },
         }),
     ],
     resolve: {
         alias: {
-            'vue': 'vue/dist/vue.esm-bundler.js',
+            vue: 'vue/dist/vue.esm-bundler.js',
+        },
+    },
+    build: {
+        chunkSizeWarningLimit: 1600,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['vue', '@inertiajs/vue3'],
+                    utils: ['axios'],
+                },
+            },
         },
     },
 });
