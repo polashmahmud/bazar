@@ -134,24 +134,7 @@
             </div>
 
             <!-- Summary Cards -->
-            <div class="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-                <!-- Total Expense -->
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
-                                <CurrencyDollarIcon class="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</dt>
-                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ monthlySummary.total_amount.toFixed(2) }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 <!-- Total Items -->
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
                     <div class="flex items-center">
@@ -189,23 +172,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Average per Item -->
-                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900">
-                                <CalculatorIcon class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                            </div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Avg per Item</dt>
-                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ monthlySummary.average_per_item.toFixed(2) }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Purchased Items Table -->
@@ -233,12 +199,6 @@
                                     Quantity
                                 </th>
                                 <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
-                                    Price
-                                </th>
-                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
-                                    Total
-                                </th>
-                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
                                     Date
                                 </th>
                             </tr>
@@ -262,12 +222,6 @@
                                 </td>
                                 <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
                                     {{ item.quantity }} {{ item.quantity_unit }}
-                                </td>
-                                <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
-                                    ${{ Number(item.price).toFixed(2) }}
-                                </td>
-                                <td class="px-2 py-3 text-xs font-medium whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
-                                    ${{ (Number(item.price) * Number(item.quantity)).toFixed(2) }}
                                 </td>
                                 <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-500 sm:px-6 sm:py-4 sm:text-sm dark:text-gray-400">
                                     {{ formatDate(item.done_at || item.updated_at) }}
@@ -304,17 +258,9 @@ const ShoppingCartIcon = {
     template:
         '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" /></svg>',
 };
-const CurrencyDollarIcon = {
-    template:
-        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>',
-};
 const HashtagIcon = {
     template:
         '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>',
-};
-const CalculatorIcon = {
-    template:
-        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
 };
 
 // Props from Laravel controller
@@ -325,7 +271,6 @@ interface Item {
     quantity: number;
     quantity_unit: string;
     image?: string;
-    price: number;
     month: string;
     is_done: boolean;
     created_at: string;
@@ -334,10 +279,8 @@ interface Item {
 }
 
 interface MonthlySummary {
-    total_amount: number;
     total_items: number;
     total_quantity: number;
-    average_per_item: number;
     month: string;
     month_name: string;
 }

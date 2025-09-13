@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard with expense analytics
+     * Display the dashboard with analytics
      */
     public function index(Request $request): Response
     {
@@ -41,7 +41,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Calculate monthly expense summary
+     * Calculate monthly summary
      */
     private function calculateMonthlySummary(string $month): array
     {
@@ -50,28 +50,19 @@ class DashboardController extends Controller
             ->done()
             ->get();
 
-        $totalAmount = $doneItems->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
-
         $totalItems = $doneItems->count();
         $totalQuantity = $doneItems->sum('quantity');
 
-        // Calculate average per item
-        $averagePerItem = $totalItems > 0 ? $totalAmount / $totalItems : 0;
-
         return [
-            'total_amount' => $totalAmount,
             'total_items' => $totalItems,
             'total_quantity' => $totalQuantity,
-            'average_per_item' => $averagePerItem,
             'month' => $month,
             'month_name' => Carbon::createFromFormat('Y-m', $month)->format('F Y'),
         ];
     }
 
     /**
-     * Calculate yearly comparison data
+     * Calculate yearly comparison data (item counts)
      */
     private function calculateYearlyComparison(): array
     {
@@ -81,18 +72,15 @@ class DashboardController extends Controller
         for ($i = 1; $i <= 12; $i++) {
             $month = sprintf('%d-%02d', $currentYear, $i);
             
-            $monthlyExpense = CartHistory::where('user_id', Auth::id())
+            $monthlyItems = CartHistory::where('user_id', Auth::id())
                 ->forMonth($month)
                 ->done()
-                ->get()
-                ->sum(function ($item) {
-                    return $item->price * $item->quantity;
-                });
+                ->count();
 
             $months[] = [
                 'month' => $month,
                 'month_name' => Carbon::createFromFormat('Y-m', $month)->format('M'),
-                'expense' => $monthlyExpense,
+                'items' => $monthlyItems,
             ];
         }
 

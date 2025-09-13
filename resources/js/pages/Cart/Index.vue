@@ -74,24 +74,6 @@
 
             <!-- Cart Items List -->
             <div v-else>
-                <!-- Mobile Quick Actions -->
-                <div
-                    class="mb-4 flex justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm md:hidden dark:border-gray-700 dark:bg-gray-800"
-                >
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                        Total: <span class="text-lg">৳{{ cartTotal.toFixed(2) }}</span>
-                    </div>
-                    <button
-                        @click="checkoutCart"
-                        class="flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
-                    >
-                        <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Complete
-                    </button>
-                </div>
-
                 <div class="mb-6 grid grid-cols-1 gap-4">
                     <div class="space-y-4">
                         <div
@@ -134,7 +116,7 @@
 
                                         <!-- Quantity Display/Edit -->
                                         <div
-                                            v-if="editingCartItem !== getCartItemId(item) && completingCartItem !== getCartItemId(item)"
+                                            v-if="editingCartItem !== getCartItemId(item)"
                                             class="mb-4"
                                         >
                                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
@@ -299,8 +281,6 @@ const props = defineProps<Props>();
 // Reactive state
 const cart = ref<CartItem[]>(props.initialCartItems || []);
 const editingCartItem = ref<string | null>(null);
-const completingCartItem = ref<string | null>(null);
-const completionPrice = ref(0);
 const loading = ref(false);
 const isOffline = ref(!navigator.onLine);
 const completingItem = ref(false);
@@ -308,14 +288,6 @@ const completingItem = ref(false);
 // Computed properties
 const cartItemCount = computed(() => {
     return cart.value.length;
-});
-
-const cartSubtotal = computed(() => {
-    return cart.value.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
-});
-
-const cartTotal = computed(() => {
-    return cartSubtotal.value;
 });
 
 // Methods
@@ -425,14 +397,6 @@ const markCartItemAsDone = async (item: CartItem) => {
         completingItem.value = true;
         console.log('Marking item as done:', item);
 
-        // Update price if needed (set default price if not set)
-        const finalPrice = item.price > 0 ? item.price : 10;
-
-        if (finalPrice !== item.price) {
-            console.log('Updating price from', item.price, 'to', finalPrice);
-            await updateCartItem(item, { price: finalPrice });
-        }
-
         if (navigator.onLine) {
             // Mark as done in database
             await axios.post(`/cart/${item.cart_id}/done`, {}, {
@@ -500,51 +464,6 @@ const removeFromCart = async (item: CartItem) => {
     }
 };
 
-// New methods for the redesigned UI
-const startCompletion = (item: CartItem) => {
-    completingCartItem.value = item.cart_id;
-    completionPrice.value = item.price || 0;
-};
-
-const completeItem = async (item: CartItem) => {
-    // Prevent multiple simultaneous calls
-    if (completingItem.value) {
-        console.log('Already completing item, please wait...');
-        return;
-    }
-
-    try {
-        completingItem.value = true;
-        console.log('Completing item:', item);
-
-        // Update price if changed
-        if (completionPrice.value !== item.price) {
-            console.log('Updating price from', item.price, 'to', completionPrice.value);
-            await updateCartItem(item, { price: completionPrice.value });
-        }
-
-        // Mark as done
-        console.log('Marking item as done...');
-        await markCartItemAsDone(item);
-
-        // Reset completion state
-        completingCartItem.value = null;
-        completionPrice.value = 0;
-        
-        console.log('Item completed successfully');
-    } catch (error) {
-        console.error('Failed to complete item:', error);
-        alert('Failed to complete item. Please try again.');
-    } finally {
-        completingItem.value = false;
-    }
-};
-
-const cancelCompletion = () => {
-    completingCartItem.value = null;
-    completionPrice.value = 0;
-};
-
 const confirmRemoveItem = (item: CartItem) => {
     if (confirm('আপনি কি এই আইটেমটি মুছে ফেলতে চান?')) {
         removeFromCart(item);
@@ -571,27 +490,7 @@ const undoItem = async () => {
     }
 };
 
-const checkoutCart = async () => {
-    if (cart.value.length === 0) return;
-
-    try {
-        loading.value = true;
-
-        // Mark all items as done
-        for (const item of cart.value) {
-            await markCartItemAsDone(item);
-        }
-
-        cart.value = [];
-
-        // Navigate to dashboard
-        router.visit('/dashboard');
-    } catch (error) {
-        console.error('Failed to checkout cart:', error);
-    } finally {
-        loading.value = false;
-    }
-};
+// Navigation methods
 
 const goToItems = () => {
     router.visit('/items');
