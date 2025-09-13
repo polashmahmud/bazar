@@ -240,13 +240,25 @@
                                 <div v-else-if="completingCartItem === getCartItemId(item)" class="mt-4 grid grid-cols-2 gap-2">
                                     <button
                                         @click="completeItem(item)"
-                                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
+                                        :disabled="completingItem"
+                                        :class="[
+                                            'rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
+                                            completingItem ? 'cursor-not-allowed bg-gray-400' : 'bg-green-500 hover:bg-green-600'
+                                        ]"
                                     >
-                                        সম্পন্ন করুন
+                                        <span v-if="completingItem" class="flex items-center justify-center">
+                                            <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            সম্পন্ন করছি...
+                                        </span>
+                                        <span v-else>সম্পন্ন করুন</span>
                                     </button>
                                     <button
                                         @click="cancelCompletion()"
-                                        class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
+                                        :disabled="completingItem"
+                                        class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:bg-gray-400"
                                     >
                                         বাতিল
                                     </button>
@@ -319,6 +331,7 @@ const completingCartItem = ref<string | null>(null);
 const completionPrice = ref(0);
 const loading = ref(false);
 const isOffline = ref(!navigator.onLine);
+const completingItem = ref(false);
 
 // Computed properties
 const cartItemCount = computed(() => {
@@ -395,7 +408,13 @@ const updateCartItem = async (item: CartItem, updates: Partial<CartItem>) => {
         // Update on server if online
         if (navigator.onLine) {
             try {
-                await axios.put(`/cart/${item.cart_id}`, updates);
+                await axios.put(`/cart/${item.cart_id}`, updates, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
             } catch (error) {
                 console.error('Failed to update on server:', error);
 
@@ -434,7 +453,13 @@ const markCartItemAsDone = async (item: CartItem) => {
 
         if (navigator.onLine) {
             // Mark as done in database
-            await axios.post(`/cart/${item.cart_id}/done`);
+            await axios.post(`/cart/${item.cart_id}/done`, {}, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            });
         } else {
             // Add to pending actions
             if (window.offlineStorage) {
@@ -495,20 +520,36 @@ const startCompletion = (item: CartItem) => {
 };
 
 const completeItem = async (item: CartItem) => {
+    // Prevent multiple simultaneous calls
+    if (completingItem.value) {
+        console.log('Already completing item, please wait...');
+        return;
+    }
+
     try {
+        completingItem.value = true;
+        console.log('Completing item:', item);
+
         // Update price if changed
         if (completionPrice.value !== item.price) {
+            console.log('Updating price from', item.price, 'to', completionPrice.value);
             await updateCartItem(item, { price: completionPrice.value });
         }
 
         // Mark as done
+        console.log('Marking item as done...');
         await markCartItemAsDone(item);
 
         // Reset completion state
         completingCartItem.value = null;
         completionPrice.value = 0;
+        
+        console.log('Item completed successfully');
     } catch (error) {
         console.error('Failed to complete item:', error);
+        alert('Failed to complete item. Please try again.');
+    } finally {
+        completingItem.value = false;
     }
 };
 
