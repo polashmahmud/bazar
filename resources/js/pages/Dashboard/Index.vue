@@ -203,7 +203,7 @@
         </div>
 
         <!-- Mobile Navigation Bar -->
-        <MobileNavBar :cartCount="0" />
+        <MobileNavBar :cartCount="cartCount" />
     </div>
 </template>
 
@@ -212,7 +212,7 @@ import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import MobileNavBar from '@/components/MobileNavBar.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 // Define icons as simple components
 const CheckIcon = {
@@ -276,6 +276,7 @@ const props = defineProps<Props>();
 
 // Reactive state
 const selectedMonth = ref(props.currentMonth);
+const cartCount = ref(0);
 
 // Computed properties
 const availableMonths = computed(() => {
@@ -311,6 +312,16 @@ const goToItems = () => {
     router.get('/items');
 };
 
+const loadCartCount = async () => {
+    try {
+        const response = await axios.get('/cart/active');
+        cartCount.value = response.data.length;
+    } catch (error) {
+        console.error('Failed to load cart count:', error);
+        cartCount.value = 0;
+    }
+};
+
 const logout = async () => {
     if (confirm('Are you sure you want to logout?')) {
         try {
@@ -323,6 +334,11 @@ const logout = async () => {
         }
     }
 };
+
+// Load cart count on mount
+onMounted(() => {
+    loadCartCount();
+});
 </script>
 
 <style scoped>

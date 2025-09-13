@@ -51,8 +51,19 @@
                         <div
                             v-for="item in cart"
                             :key="item.cart_id"
-                            class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                            class="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
                         >
+                            <!-- Delete Button - Top Right -->
+                            <button
+                                @click="confirmRemoveItem(item)"
+                                class="absolute top-2 right-2 rounded-full bg-red-500 p-1 text-white transition-colors hover:bg-red-600"
+                                title="মুছুন"
+                            >
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
                             <div class="p-4">
                                 <div class="flex space-x-4">
                                     <!-- Item Image - Left Side -->
@@ -146,7 +157,7 @@
                                 <!-- Action Buttons - Full Width -->
                                 <div
                                     v-if="editingCartItem !== getCartItemId(item) && completingCartItem !== getCartItemId(item) && !item.is_done"
-                                    class="mt-4 grid grid-cols-3 gap-2"
+                                    class="mt-4 grid grid-cols-2 gap-2"
                                 >
                                     <button
                                         @click="editingCartItem = getCartItemId(item)"
@@ -160,13 +171,6 @@
                                         class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
                                     >
                                         সম্পন্ন
-                                    </button>
-
-                                    <button
-                                        @click="confirmRemoveItem(item)"
-                                        class="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
-                                    >
-                                        মুছুন
                                     </button>
                                 </div>
 
@@ -203,18 +207,12 @@
                                 </div>
 
                                 <!-- Done Item Actions -->
-                                <div v-else-if="item.is_done" class="grid grid-cols-2 gap-2">
+                                <div v-else-if="item.is_done" class="mt-4">
                                     <button
                                         @click="undoItem()"
-                                        class="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                                        class="w-full rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
                                     >
                                         আন্ডু
-                                    </button>
-                                    <button
-                                        @click="confirmRemoveItem(item)"
-                                        class="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
-                                    >
-                                        মুছুন
                                     </button>
                                 </div>
                             </div>
