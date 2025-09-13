@@ -1,329 +1,340 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Title -->
-          <div class="flex items-center space-x-4">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-              📊 Dashboard
-            </h1>
-            <span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
-              {{ monthlySummary.month_name }}
-            </span>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex items-center space-x-2 sm:space-x-4">
-            <!-- Theme Toggle -->
-            <AppearanceTabs />
-
-            <!-- Items Page Button -->
-            <button
-              @click="goToItems"
-              class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
-            >
-              <ShoppingCartIcon class="h-5 w-5" />
-              <span class="hidden sm:block">Items</span>
-            </button>
-
-            <!-- Logout Button -->
-            <button
-              @click="logout"
-              class="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
-            >
-              <ArrowRightOnRectangleIcon class="h-5 w-5" />
-              <span class="hidden sm:block">Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <!-- Month Selector -->
-      <div class="mb-6">
-        <select 
-          v-model="selectedMonth" 
-          @change="changeMonth"
-          class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option v-for="month in availableMonths" :key="month.value" :value="month.value">
-            {{ month.label }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Expense -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                <CurrencyDollarIcon class="w-5 h-5 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                  Total Expense
-                </dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  ${{ monthlySummary.total_amount.toFixed(2) }}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Items -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                <CheckIcon class="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                  Items Purchased
-                </dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  {{ monthlySummary.total_items }}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Quantity -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                <HashtagIcon class="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                  Total Quantity
-                </dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  {{ monthlySummary.total_quantity }}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <!-- Average per Item -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                <CalculatorIcon class="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                  Avg per Item
-                </dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  ${{ monthlySummary.average_per_item.toFixed(2) }}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Purchased Items Table -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-lg font-medium text-gray-900 dark:text-white">
-            ✅ Purchased Items - {{ monthlySummary.month_name }}
-          </h2>
-        </div>
-
-        <div v-if="doneItems.length === 0" class="p-8 text-center">
-          <div class="text-6xl mb-4">📝</div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            No purchased items yet
-          </h3>
-          <p class="text-gray-500 dark:text-gray-400">
-            Items you mark as done will appear here with purchase details
-          </p>
-        </div>
-
-        <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Item
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Price
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Total
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr
-                v-for="item in doneItems"
-                :key="item.id"
-                class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 mr-4">
-                      <img
-                        v-if="item.image"
-                        :src="item.image"
-                        :alt="item.name"
-                        class="w-full h-full object-cover rounded-lg"
-                      />
-                      <div v-else class="w-full h-full flex items-center justify-center">
-                        <div class="text-lg">📦</div>
-                      </div>
+    <div class="min-h-screen bg-gray-50 pb-16 transition-colors duration-300 sm:pb-0 dark:bg-gray-900">
+        <!-- Header -->
+        <div class="border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <!-- Title -->
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">📊 Dashboard</h1>
+                        <span class="hidden text-sm text-gray-500 sm:block dark:text-gray-400">
+                            {{ monthlySummary.month_name }}
+                        </span>
                     </div>
-                    <div>
-                      <div class="text-sm font-medium text-gray-900 dark:text-white">
-                        {{ item.name }}
-                      </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <!-- Theme Toggle (hidden on mobile) -->
+                        <div class="hidden sm:block">
+                            <AppearanceTabs />
+                        </div>
+
+                        <!-- Items Page Button (hidden on mobile) -->
+                        <button
+                            @click="goToItems"
+                            class="hidden items-center space-x-2 rounded-lg bg-blue-600 px-3 py-2 font-medium text-white transition-colors hover:bg-blue-700 sm:flex"
+                        >
+                            <ShoppingCartIcon class="h-5 w-5" />
+                            <span>Items</span>
+                        </button>
+
+                        <!-- Logout Button (hidden on mobile) -->
+                        <button
+                            @click="logout"
+                            class="hidden items-center space-x-2 rounded-lg bg-red-600 px-3 py-2 font-medium text-white transition-colors hover:bg-red-700 sm:flex"
+                        >
+                            <ArrowRightOnRectangleIcon class="h-5 w-5" />
+                            <span>Logout</span>
+                        </button>
                     </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  {{ item.quantity }} {{ item.quantity_unit }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  ${{ Number(item.price).toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                  ${{ (Number(item.price) * Number(item.quantity)).toFixed(2) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDate(item.done_at || item.updated_at) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Main Content -->
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Month Selector -->
+            <div class="mb-6">
+                <select
+                    v-model="selectedMonth"
+                    @change="changeMonth"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                    <option v-for="month in availableMonths" :key="month.value" :value="month.value">
+                        {{ month.label }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+                <!-- Total Expense -->
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
+                                <CurrencyDollarIcon class="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ monthlySummary.total_amount.toFixed(2) }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Items -->
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
+                                <CheckIcon class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Items Purchased</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                    {{ monthlySummary.total_items }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Quantity -->
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
+                                <HashtagIcon class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Total Quantity</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                    {{ monthlySummary.total_quantity }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average per Item -->
+                <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900">
+                                <CalculatorIcon class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Avg per Item</dt>
+                                <dd class="text-lg font-medium text-gray-900 dark:text-white">${{ monthlySummary.average_per_item.toFixed(2) }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchased Items Table -->
+            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4 dark:border-gray-700">
+                    <h2 class="text-base font-medium text-gray-900 sm:text-lg dark:text-white">
+                        ✅ Purchased Items - {{ monthlySummary.month_name }}
+                    </h2>
+                </div>
+
+                <div v-if="doneItems.length === 0" class="p-6 text-center sm:p-8">
+                    <div class="mb-3 text-4xl sm:mb-4 sm:text-6xl">📝</div>
+                    <h3 class="mb-2 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">No purchased items yet</h3>
+                    <p class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Items you mark as done will appear here with purchase details</p>
+                </div>
+
+                <div v-else class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
+                                    Item
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
+                                    Quantity
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
+                                    Price
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
+                                    Total
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300">
+                                    Date
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                            <tr v-for="item in doneItems" :key="item.id" class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="px-2 py-3 whitespace-nowrap sm:px-6 sm:py-4">
+                                    <div class="flex items-center">
+                                        <div class="mr-2 h-8 w-8 flex-shrink-0 rounded-lg bg-gray-100 sm:mr-4 sm:h-10 sm:w-10 dark:bg-gray-700">
+                                            <img v-if="item.image" :src="item.image" :alt="item.name" class="h-full w-full rounded-lg object-cover" />
+                                            <div v-else class="flex h-full w-full items-center justify-center">
+                                                <div class="text-sm sm:text-lg">📦</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
+                                                {{ item.name }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
+                                    {{ item.quantity }} {{ item.quantity_unit }}
+                                </td>
+                                <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
+                                    ${{ Number(item.price).toFixed(2) }}
+                                </td>
+                                <td class="px-2 py-3 text-xs font-medium whitespace-nowrap text-gray-900 sm:px-6 sm:py-4 sm:text-sm dark:text-white">
+                                    ${{ (Number(item.price) * Number(item.quantity)).toFixed(2) }}
+                                </td>
+                                <td class="px-2 py-3 text-xs whitespace-nowrap text-gray-500 sm:px-6 sm:py-4 sm:text-sm dark:text-gray-400">
+                                    {{ formatDate(item.done_at || item.updated_at) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <MobileNavBar :cartCount="0" />
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { router } from '@inertiajs/vue3'
-import axios from 'axios'
-import AppearanceTabs from '@/components/AppearanceTabs.vue'
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
+import MobileNavBar from '@/components/MobileNavBar.vue';
+import { router } from '@inertiajs/vue3';
+import axios from 'axios';
+import { computed, ref } from 'vue';
 
 // Define icons as simple components
-const CheckIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>' }
-const ArrowRightOnRectangleIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>' }
-const ShoppingCartIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" /></svg>' }
-const CurrencyDollarIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>' }
-const HashtagIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>' }
-const CalculatorIcon = { template: '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>' }
+const CheckIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>',
+};
+const ArrowRightOnRectangleIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>',
+};
+const ShoppingCartIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h6a2 2 0 002-2v-8m-8 0V9a2 2 0 012-2h4a2 2 0 012 2v4.01" /></svg>',
+};
+const CurrencyDollarIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" /></svg>',
+};
+const HashtagIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>',
+};
+const CalculatorIcon = {
+    template:
+        '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>',
+};
 
 // Props from Laravel controller
 interface Item {
-  id: number
-  cart_id?: string
-  name: string
-  quantity: number
-  quantity_unit: string
-  image?: string
-  price: number
-  month: string
-  is_done: boolean
-  created_at: string
-  updated_at: string
-  done_at?: string
+    id: number;
+    cart_id?: string;
+    name: string;
+    quantity: number;
+    quantity_unit: string;
+    image?: string;
+    price: number;
+    month: string;
+    is_done: boolean;
+    created_at: string;
+    updated_at: string;
+    done_at?: string;
 }
 
 interface MonthlySummary {
-  total_amount: number
-  total_items: number
-  total_quantity: number
-  average_per_item: number
-  month: string
-  month_name: string
+    total_amount: number;
+    total_items: number;
+    total_quantity: number;
+    average_per_item: number;
+    month: string;
+    month_name: string;
 }
 
 interface Props {
-  doneItems: Item[]
-  currentMonth: string
-  monthlySummary: MonthlySummary
-  yearlyComparison: any[]
+    doneItems: Item[];
+    currentMonth: string;
+    monthlySummary: MonthlySummary;
+    yearlyComparison: any[];
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Reactive state
-const selectedMonth = ref(props.currentMonth)
+const selectedMonth = ref(props.currentMonth);
 
 // Computed properties
 const availableMonths = computed(() => {
-  const months = []
-  const now = new Date()
-  
-  for (let i = -6; i <= 6; i++) {
-    const date = new Date(now.getFullYear(), now.getMonth() + i, 1)
-    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    const label = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-    months.push({ value, label })
-  }
-  
-  return months
-})
+    const months = [];
+    const now = new Date();
+
+    for (let i = -6; i <= 6; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const label = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        months.push({ value, label });
+    }
+
+    return months;
+});
 
 // Methods
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
 
 const changeMonth = () => {
-  router.get('/dashboard', { month: selectedMonth.value })
-}
+    router.get('/dashboard', { month: selectedMonth.value });
+};
 
 const goToItems = () => {
-  router.get('/items')
-}
+    router.get('/items');
+};
 
 const logout = async () => {
-  if (confirm('Are you sure you want to logout?')) {
-    try {
-      await axios.post('/pin-logout')
-      window.location.href = '/'
-    } catch (error) {
-      console.error('Logout failed:', error)
-      // Force redirect anyway
-      window.location.href = '/'
+    if (confirm('Are you sure you want to logout?')) {
+        try {
+            await axios.post('/pin-logout');
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Force redirect anyway
+            window.location.href = '/';
+        }
     }
-  }
-}
+};
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+    /* Hide theme toggle on mobile */
+    .hidden.sm\\:block {
+        display: none !important;
+    }
+
+    /* Ensure mobile navigation is visible */
+    .sm\\:pb-0 {
+        padding-bottom: 4rem;
+    }
+}
+</style>
