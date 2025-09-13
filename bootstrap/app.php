@@ -21,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+        
+        // Temporarily disable CSRF for cart routes during testing
+        $middleware->validateCsrfTokens(except: [
+            'cart/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

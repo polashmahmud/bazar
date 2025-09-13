@@ -18,6 +18,9 @@ axios.defaults.withCredentials = true; // Ensure cookies are sent with requests
 const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 if (token) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    console.log('CSRF token set:', token.substring(0, 10) + '...');
+} else {
+    console.error('CSRF token not found in meta tag');
 }
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

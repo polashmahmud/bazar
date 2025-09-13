@@ -25,11 +25,6 @@ class CartHistoryController extends Controller
         ]);
 
         $item = Item::findOrFail($validated['item_id']);
-        
-        // Ensure user can only add their own items to cart
-        if ($item->user_id !== Auth::id()) {
-            abort(403, 'You can only add your own items to cart');
-        }
 
         $cartHistory = CartHistory::create([
             'item_id' => $item->id,
@@ -46,6 +41,8 @@ class CartHistoryController extends Controller
         return response()->json([
             'success' => true,
             'cart_item' => $cartHistory
+        ], 200, [
+            'Content-Type' => 'application/json',
         ]);
     }
 

@@ -112,7 +112,11 @@
                         <!-- Add to Cart Button -->
                         <button
                             @click="addToCart(item)"
-                            class="flex w-full items-center justify-center space-x-1 rounded-md bg-green-500 px-1 py-1 text-xs font-medium text-white transition-colors hover:bg-green-600 sm:space-x-2 sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm md:py-3 md:text-base"
+                            :disabled="!item.id"
+                            :class="[
+                                'flex w-full items-center justify-center space-x-1 rounded-md px-1 py-1 text-xs font-medium text-white transition-colors sm:space-x-2 sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm md:py-3 md:text-base',
+                                item.id ? 'bg-green-500 hover:bg-green-600' : 'cursor-not-allowed bg-gray-400',
+                            ]"
                         >
                             <svg class="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path
@@ -386,35 +390,43 @@ const goToDashboard = () => {
 
 const addToCart = async (item: Item | OfflineItem) => {
     try {
+        console.log('Item being added to cart:', item);
+        console.log('Item ID:', item.id);
+
+        // Check if item has a valid ID (not offline item)
+        if (!item.id) {
+            console.error('Cannot add offline item to cart. Item must be saved first.');
+            // You could show a toast notification here
+            return;
+        }
+
         const currentDate = new Date();
         const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
         const cartId = `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-        const response = await axios.post(
-            '/cart/add',
-            {
-                item_id: item.id,
-                cart_id: cartId,
-                quantity: 1,
-                quantity_unit: 'পিস',
-                price: item.price || 0,
-                month: currentMonth,
-            },
-            {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-            },
-        );
+        const requestData = {
+            item_id: item.id,
+            cart_id: cartId,
+            quantity: 1,
+            quantity_unit: 'পিস',
+            price: item.price || 0,
+            month: currentMonth,
+        };
+
+        console.log('Request data:', requestData);
+
+        const response = await axios.post('/cart/add', requestData);
 
         if (response.data.success) {
             cartItemCount.value++;
             console.log('Item added to cart successfully');
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error adding item to cart:', error);
+        if (error.response) {
+            console.error('Response status:', error.response.status);
+            console.error('Response data:', error.response.data);
+        }
     }
 };
 
