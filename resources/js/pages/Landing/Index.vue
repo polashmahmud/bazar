@@ -1,4 +1,24 @@
+<script setup lang="ts">
+import { logout } from '@/routes';
+import register from '@/routes/register';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
+
+// Mobile menu state
+const mobileMenuOpen = ref(false);
+
+// Route URLs
+const loginUrl = '/pin-login'; // Pin login URL
+const registerUrl = register.store.url();
+const dashboardUrl = '/dashboard';
+const logoutUrl = logout.url();
+</script>
+
 <template>
+    {{ user }}
     <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
         <!-- Navigation -->
         <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -17,7 +37,7 @@
                         <a href="#about" class="text-gray-600 transition-colors duration-200 hover:text-indigo-600"> About </a>
 
                         <!-- Show different buttons based on authentication -->
-                        <template v-if="!isAuthenticated">
+                        <template v-if="!user">
                             <Link :href="loginUrl" class="text-gray-600 transition-colors duration-200 hover:text-indigo-600"> Login </Link>
                             <Link
                                 :href="registerUrl"
@@ -80,7 +100,7 @@
                         </a>
 
                         <!-- Mobile auth buttons -->
-                        <template v-if="!isAuthenticated">
+                        <template v-if="!user">
                             <Link
                                 :href="loginUrl"
                                 class="block px-3 py-2 text-gray-600 transition-colors duration-200 hover:text-indigo-600"
@@ -446,41 +466,6 @@
         </footer>
     </div>
 </template>
-
-<script setup lang="ts">
-import { logout } from '@/routes';
-import register from '@/routes/register';
-import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-
-// Props
-defineProps<{
-    auth?: {
-        user?: {
-            id: number;
-            name: string;
-            email: string;
-        };
-    };
-}>();
-
-// Get page props
-const page = usePage();
-
-// Check if user is authenticated
-const isAuthenticated = computed(() => {
-    return page.props.auth?.user != null;
-});
-
-// Mobile menu state
-const mobileMenuOpen = ref(false);
-
-// Route URLs
-const loginUrl = '/pin-login'; // Pin login URL
-const registerUrl = register.store.url();
-const dashboardUrl = '/dashboard';
-const logoutUrl = logout.url();
-</script>
 
 <style scoped>
 @keyframes blob {

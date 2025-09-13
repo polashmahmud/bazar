@@ -4,18 +4,13 @@ use App\Http\Controllers\Auth\PinLoginController;
 use App\Http\Controllers\CartHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 // Landing Page
-Route::get('/', function () {
-    return Inertia::render('Landing/Index', [
-        'auth' => [
-            'user' => Auth::user()
-        ]
-    ]);
-})->name('landing');
+Route::get('/', LandingController::class)->name('landing');
 
 // Pin Login Routes (for registered users)
 Route::middleware('guest')->group(function () {
