@@ -448,7 +448,7 @@
 </template>
 
 <script setup lang="ts">
-import { login, logout } from '@/routes';
+import { logout } from '@/routes';
 import register from '@/routes/register';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -476,7 +476,7 @@ const isAuthenticated = computed(() => {
 const mobileMenuOpen = ref(false);
 
 // Route URLs
-const loginUrl = login.url();
+const loginUrl = '/pin-login'; // Pin login URL
 const registerUrl = register.store.url();
 const dashboardUrl = '/dashboard';
 const logoutUrl = logout.url();

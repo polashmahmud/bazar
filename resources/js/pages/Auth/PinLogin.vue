@@ -7,15 +7,25 @@ import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
-import { nextTick, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 
 const form = useForm({
     email: '',
     pin_code: '',
+    remember_email: false,
 });
 
 const pinInputs = ref<HTMLInputElement[]>([]);
 const pinDigits = ref(['', '', '', '']);
+
+// Load remembered email on component mount
+onMounted(() => {
+    const rememberedEmail = localStorage.getItem('remembered_email');
+    if (rememberedEmail) {
+        form.email = rememberedEmail;
+        form.remember_email = true;
+    }
+});
 
 const onPinInput = (index: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -73,6 +83,13 @@ const onPinPaste = (event: ClipboardEvent) => {
 };
 
 const submit = () => {
+    // Handle remember email
+    if (form.remember_email) {
+        localStorage.setItem('remembered_email', form.email);
+    } else {
+        localStorage.removeItem('remembered_email');
+    }
+
     form.post('/pin-login', {
         onFinish: () => {
             // Clear pin on error
@@ -135,7 +152,21 @@ const submit = () => {
                     <InputError :message="form.errors.pin_code" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full" :tabindex="6" :disabled="form.processing">
+                <!-- Remember Email Checkbox -->
+                <div class="flex items-center space-x-2">
+                    <input
+                        id="remember_email"
+                        type="checkbox"
+                        v-model="form.remember_email"
+                        :tabindex="6"
+                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0"
+                    />
+                    <Label for="remember_email" class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Remember my email
+                    </Label>
+                </div>
+
+                <Button type="submit" class="mt-2 w-full" :tabindex="7" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Login with Pin
                 </Button>
@@ -144,11 +175,11 @@ const submit = () => {
             <div class="space-y-2 text-center text-sm text-muted-foreground">
                 <div>
                     Don't have a pin set?
-                    <TextLink href="/login" class="underline underline-offset-4" :tabindex="7"> Login with Email & Password </TextLink>
+                    <TextLink href="/login" class="underline underline-offset-4" :tabindex="8"> Login with Email & Password </TextLink>
                 </div>
                 <div>
                     Don't have an account?
-                    <TextLink href="/register" class="underline underline-offset-4" :tabindex="8"> Create account </TextLink>
+                    <TextLink href="/register" class="underline underline-offset-4" :tabindex="9"> Create account </TextLink>
                 </div>
             </div>
         </form>
