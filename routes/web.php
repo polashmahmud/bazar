@@ -5,11 +5,16 @@ use App\Http\Controllers\CartHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 // Landing Page
 Route::get('/', function () {
-    return Inertia::render('Landing/Index');
+    return Inertia::render('Landing/Index', [
+        'auth' => [
+            'user' => Auth::user()
+        ]
+    ]);
 })->name('landing');
 
 // Pin Login Routes (for registered users)
