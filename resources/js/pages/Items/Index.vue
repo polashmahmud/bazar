@@ -440,7 +440,6 @@ const addToCart = async (item: Item | OfflineItem) => {
             cart_id: cartId,
             quantity: 1,
             quantity_unit: 'পিস',
-            price: item.price || 0,
             month: currentMonth,
         };
 

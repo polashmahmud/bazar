@@ -23,7 +23,7 @@ class CartHistory extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:2',
+        'quantity' => 'float',
         'price' => 'decimal:2',
         'is_done' => 'boolean',
         'done_at' => 'datetime'

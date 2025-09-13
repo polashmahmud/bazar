@@ -37,7 +37,6 @@ class CartHistoryController extends Controller
             'cart_id' => 'required|string|unique:cart_histories,cart_id',
             'quantity' => 'numeric|min:0.01',
             'quantity_unit' => 'string|max:50',
-            'price' => 'numeric|min:0',
             'month' => 'required|string|date_format:Y-m',
         ]);
 
@@ -51,7 +50,7 @@ class CartHistoryController extends Controller
             'image' => $item->image,
             'quantity' => $validated['quantity'] ?? 1,
             'quantity_unit' => $validated['quantity_unit'] ?? 'পিস',
-            'price' => $validated['price'] ?? 0,
+            'price' => 0, // Default price since we removed price functionality
             'month' => $validated['month'],
         ]);
 
