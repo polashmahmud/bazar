@@ -28,8 +28,10 @@
                             </span>
                         </div>
 
-                        <!-- Theme Toggle -->
-                        <AppearanceTabs />
+                        <!-- Theme Toggle (hidden on mobile) -->
+                        <div class="hidden sm:block">
+                            <AppearanceTabs />
+                        </div>
 
                         <!-- Cart Button (hidden on mobile) -->
                         <button
@@ -447,6 +449,11 @@ const handleOnlineStatusChange = () => {
     .mobile-responsive-button {
         padding: 0.375rem 0.5rem;
         font-size: 0.75rem;
+    }
+
+    /* Hide theme toggle on mobile */
+    .hidden.sm\\:block {
+        display: none !important;
     }
 }
 </style>
