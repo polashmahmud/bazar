@@ -102,30 +102,44 @@ class OfflineStorageManager {
         });
     }
 
-    async deleteCartItem(id: number): Promise<void> {
+    async deleteCartItem(cartId: string): Promise<void> {
         const transaction = this.db!.transaction([this.stores.cart], 'readwrite');
         const store = transaction.objectStore(this.stores.cart);
 
         await new Promise<void>((resolve, reject) => {
-            const request = store.delete(id);
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
+            // First find the item by cart_id
+            const getRequest = store.getAll();
+            getRequest.onsuccess = () => {
+                const items = getRequest.result;
+                const itemToDelete = items.find((item) => item.cart_id === cartId);
+
+                if (itemToDelete) {
+                    // Delete by the primary key (which is id)
+                    const deleteRequest = store.delete(itemToDelete.id);
+                    deleteRequest.onsuccess = () => resolve();
+                    deleteRequest.onerror = () => reject(deleteRequest.error);
+                } else {
+                    resolve(); // Item not found, consider it already deleted
+                }
+            };
+            getRequest.onerror = () => reject(getRequest.error);
         });
     }
 
-    async updateCartItem(id: number, updates: any): Promise<void> {
+    async updateCartItem(cartId: string, updates: any): Promise<void> {
         const transaction = this.db!.transaction([this.stores.cart], 'readwrite');
         const store = transaction.objectStore(this.stores.cart);
 
-        // Get current item
-        const getRequest = store.get(id);
-
         await new Promise<void>((resolve, reject) => {
-            getRequest.onsuccess = () => {
-                const currentItem = getRequest.result;
-                if (currentItem) {
+            // First find the item by cart_id
+            const getAllRequest = store.getAll();
+            getAllRequest.onsuccess = () => {
+                const items = getAllRequest.result;
+                const itemToUpdate = items.find((item) => item.cart_id === cartId);
+
+                if (itemToUpdate) {
                     const updatedItem = {
-                        ...currentItem,
+                        ...itemToUpdate,
                         ...updates,
                         synced: false,
                         last_modified: new Date().toISOString(),
@@ -138,7 +152,7 @@ class OfflineStorageManager {
                     reject(new Error('Item not found'));
                 }
             };
-            getRequest.onerror = () => reject(getRequest.error);
+            getAllRequest.onerror = () => reject(getAllRequest.error);
         });
     }
 
