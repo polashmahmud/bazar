@@ -134,13 +134,11 @@
                                             <div class="grid grid-cols-2 gap-2">
                                                 <input
                                                     ref="quantityInputRef"
-                                                    :value="formatQuantity(item.quantity)"
-                                                    @input="
-                                                        updateCartItem(item, { quantity: parseFloat(($event.target as HTMLInputElement).value) || 1 })
-                                                    "
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
+                                                    v-model="editingQuantity"
+                                                    @blur="updateCartItem(item, { quantity: parseFloat(editingQuantity) || 1 })"
+                                                    @keydown.enter="($event.target as HTMLInputElement).blur()"
+                                                    type="text"
+                                                    inputmode="decimal"
                                                     class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                                     placeholder="পরিমাণ"
                                                 />
@@ -282,6 +280,7 @@ const props = defineProps<Props>();
 // Reactive state
 const cart = ref<CartItem[]>(props.initialCartItems || []);
 const editingCartItem = ref<string | null>(null);
+const editingQuantity = ref<string>('');
 const quantityInputRef = ref<HTMLInputElement | null>(null);
 const loading = ref(false);
 const isOffline = ref(!navigator.onLine);
@@ -304,6 +303,7 @@ const formatQuantity = (quantity: number): string => {
 
 const startEditing = async (item: CartItem) => {
     editingCartItem.value = getCartItemId(item);
+    editingQuantity.value = formatQuantity(item.quantity);
     
     // Wait for next tick to ensure the input is rendered
     await nextTick();
@@ -497,11 +497,13 @@ const confirmRemoveItem = (item: CartItem) => {
 
 const saveEdit = async () => {
     editingCartItem.value = null;
+    editingQuantity.value = '';
     // Updates are already handled by updateCartItem calls in the inputs
 };
 
 const cancelEdit = () => {
     editingCartItem.value = null;
+    editingQuantity.value = '';
     // Reload to revert changes
     loadCartItems();
 };
