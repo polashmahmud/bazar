@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('cart_histories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Add user_id column with foreign key
             $table->foreignId('item_id')->nullable()->constrained()->nullOnDelete();
             $table->string('cart_id')->unique(); // Unique cart instance ID
             $table->string('name');
