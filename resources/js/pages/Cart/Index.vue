@@ -76,7 +76,10 @@
                                         </h4>
 
                                         <!-- Quantity Display/Edit -->
-                                        <div v-if="editingCartItem !== getCartItemId(item)" class="mb-4">
+                                        <div
+                                            v-if="editingCartItem !== getCartItemId(item) && completingCartItem !== getCartItemId(item)"
+                                            class="mb-4"
+                                        >
                                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
                                             <div v-if="item.is_done" class="mt-2">
                                                 <span
@@ -88,7 +91,7 @@
                                         </div>
 
                                         <!-- Edit Mode for Quantity -->
-                                        <div v-else class="mb-4 space-y-3">
+                                        <div v-else-if="editingCartItem === getCartItemId(item)" class="mb-4 space-y-3">
                                             <div class="grid grid-cols-2 gap-2">
                                                 <input
                                                     :value="item.quantity"
@@ -121,11 +124,30 @@
                                                 </select>
                                             </div>
                                         </div>
+
+                                        <!-- Done Mode - Price Input -->
+                                        <div v-else-if="completingCartItem === getCartItemId(item)" class="mb-4 space-y-3">
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ item.quantity }} {{ item.quantity_unit }}</p>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-gray-500 dark:text-gray-400">৳</span>
+                                                <input
+                                                    v-model="completionPrice"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                    placeholder="দাম লিখুন (ঐচ্ছিক)"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons - Full Width -->
-                                <div v-if="editingCartItem !== getCartItemId(item) && !item.is_done" class="mt-4 grid grid-cols-3 gap-2">
+                                <div
+                                    v-if="editingCartItem !== getCartItemId(item) && completingCartItem !== getCartItemId(item) && !item.is_done"
+                                    class="mt-4 grid grid-cols-3 gap-2"
+                                >
                                     <button
                                         @click="editingCartItem = getCartItemId(item)"
                                         class="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600"
@@ -134,7 +156,7 @@
                                     </button>
 
                                     <button
-                                        @click="showDoneModal(item)"
+                                        @click="startCompletion(item)"
                                         class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
                                     >
                                         সম্পন্ন
@@ -164,6 +186,22 @@
                                     </button>
                                 </div>
 
+                                <!-- Completion Mode Save/Cancel Buttons -->
+                                <div v-else-if="completingCartItem === getCartItemId(item)" class="mt-4 grid grid-cols-2 gap-2">
+                                    <button
+                                        @click="completeItem(item)"
+                                        class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
+                                    >
+                                        সম্পন্ন করুন
+                                    </button>
+                                    <button
+                                        @click="cancelCompletion()"
+                                        class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600"
+                                    >
+                                        বাতিল
+                                    </button>
+                                </div>
+
                                 <!-- Done Item Actions -->
                                 <div v-else-if="item.is_done" class="grid grid-cols-2 gap-2">
                                     <button
@@ -182,50 +220,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Done Modal -->
-        <div v-if="showDoneModalState" class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-            <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-                <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">আইটেম সম্পন্ন করুন</h3>
-
-                <div v-if="selectedItemForDone" class="mb-4">
-                    <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
-                        {{ selectedItemForDone.name }}
-                    </p>
-                    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                        {{ selectedItemForDone.quantity }} {{ selectedItemForDone.quantity_unit }}
-                    </p>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> দাম (ঐচ্ছিক) </label>
-                    <div class="flex items-center">
-                        <span class="mr-2 text-gray-500 dark:text-gray-400">৳</span>
-                        <input
-                            v-model="donePrice"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                            placeholder="দাম লিখুন"
-                        />
-                    </div>
-                </div>
-
-                <div class="flex space-x-3">
-                    <button
-                        @click="closeDoneModal"
-                        class="flex-1 rounded-lg bg-gray-500 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-600"
-                    >
-                        বাতিল
-                    </button>
-                    <button
-                        @click="completeDone"
-                        class="flex-1 rounded-lg bg-green-500 px-4 py-2 font-medium text-white transition-colors hover:bg-green-600"
-                    >
-                        সম্পন্ন
-                    </button>
                 </div>
             </div>
         </div>
@@ -258,10 +252,9 @@ interface CartItem {
 // Reactive state
 const cart = ref<CartItem[]>([]);
 const editingCartItem = ref<string | null>(null);
+const completingCartItem = ref<string | null>(null);
+const completionPrice = ref(0);
 const loading = ref(false);
-const showDoneModalState = ref(false);
-const selectedItemForDone = ref<CartItem | null>(null);
-const donePrice = ref(0);
 
 // Computed properties
 const cartItemCount = computed(() => {
@@ -341,10 +334,32 @@ const removeFromCart = async (item: CartItem) => {
 };
 
 // New methods for the redesigned UI
-const showDoneModal = (item: CartItem) => {
-    selectedItemForDone.value = item;
-    donePrice.value = item.price || 0;
-    showDoneModalState.value = true;
+const startCompletion = (item: CartItem) => {
+    completingCartItem.value = item.cart_id;
+    completionPrice.value = item.price || 0;
+};
+
+const completeItem = async (item: CartItem) => {
+    try {
+        // Update price if changed
+        if (completionPrice.value !== item.price) {
+            await updateCartItem(item, { price: completionPrice.value });
+        }
+
+        // Mark as done
+        await markCartItemAsDone(item);
+
+        // Reset completion state
+        completingCartItem.value = null;
+        completionPrice.value = 0;
+    } catch (error) {
+        console.error('Failed to complete item:', error);
+    }
+};
+
+const cancelCompletion = () => {
+    completingCartItem.value = null;
+    completionPrice.value = 0;
 };
 
 const confirmRemoveItem = (item: CartItem) => {
@@ -371,31 +386,6 @@ const undoItem = async () => {
     } catch (error) {
         console.error('Failed to undo item:', error);
     }
-};
-
-const completeDone = async () => {
-    if (!selectedItemForDone.value) return;
-
-    try {
-        // Update price if changed
-        if (donePrice.value !== selectedItemForDone.value.price) {
-            await updateCartItem(selectedItemForDone.value, { price: donePrice.value });
-        }
-
-        // Mark as done
-        await markCartItemAsDone(selectedItemForDone.value);
-
-        // Close modal
-        closeDoneModal();
-    } catch (error) {
-        console.error('Failed to complete done:', error);
-    }
-};
-
-const closeDoneModal = () => {
-    showDoneModalState.value = false;
-    selectedItemForDone.value = null;
-    donePrice.value = 0;
 };
 
 const checkoutCart = async () => {
