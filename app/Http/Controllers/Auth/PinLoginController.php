@@ -16,7 +16,7 @@ class PinLoginController extends Controller
      */
     public function show()
     {
-        return Inertia::render('Auth/PinLogin');
+        return Inertia::render('auth/PinLogin');
     }
 
     /**
@@ -65,7 +65,7 @@ class PinLoginController extends Controller
      */
     public function showSetup()
     {
-        return Inertia::render('Auth/PinSetup');
+        return Inertia::render('auth/PinSetup');
     }
 
     /**
