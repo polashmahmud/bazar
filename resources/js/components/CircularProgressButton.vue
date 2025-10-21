@@ -42,15 +42,20 @@ const strokeDashoffset = computed(() => {
         </div>
 
         <!-- Content -->
-        <div class="relative z-10 flex flex-col items-center justify-center">
-            <!-- Label Text (Bangla) -->
-            <p class="text-sm text-gray-600 mb-2 text-center px-4">
-                {{ label }}
+        <div class="relative z-10 flex flex-col items-center justify-center space-y-1">
+            <!-- Value/Total (Large) -->
+            <p class="text-4xl font-bold text-gray-900">
+                {{ value }}<span class="text-2xl text-gray-400">/{{ total }}</span>
             </p>
 
-            <!-- Value (Large Number) -->
-            <p class="text-4xl font-bold text-gray-900">
-                {{ value }}
+            <!-- Percentage (Medium) -->
+            <p class="text-xl font-semibold text-green-600">
+                {{ Math.round(progressPercentage) }}% সম্পন্ন
+            </p>
+
+            <!-- Label Text (Small) -->
+            <p class="text-xs text-gray-500 text-center px-4 pt-1">
+                {{ label }}
             </p>
         </div>
     </button>

@@ -3,14 +3,22 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { DonutChart } from "@/components/ui/chart-donut"
 import CircularProgressButton from '@/components/CircularProgressButton.vue';
+import { Button } from '@/components/ui/button';
+import { ShoppingCart, AlertCircle, TrendingUp, Apple, Salad, Cherry, Flame } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
         href: dashboard().url,
     },
+];
+
+const quickAddItems = [
+    { name: 'আলু', icon: Apple },
+    { name: 'পেয়াজ', icon: Salad },
+    { name: 'টমেটো', icon: Cherry },
+    { name: 'মরিচ', icon: Flame },
 ];
 </script>
 
@@ -19,16 +27,36 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-4">
-            <div class="flex flex-wrap gap-6">
-                <!-- Example 1: আপনার ছবির মতো -->
-                <CircularProgressButton label="আজ, ২৪ জানুয়ার কেনাকাটার দলগুলি" :value="20" :total="100" />
+        <div class="p-4 space-y-6 text-sm text-gray-600">
+            <div class="flex items-center justify-center">
+                <CircularProgressButton label="আজকের বাজার তালিকা" :value="15" :total="20" />
+            </div>
 
-                <!-- Example 2: আরেকটি উদাহরণ -->
-                <CircularProgressButton label="সম্পূর্ণ অর্ডার" :value="35" :total="50" />
+            <div class="space-y-6 text-center">
+                <Button variant="outline" class="w-full">
+                    <ShoppingCart class="mr-2 h-4 w-4" />
+                    আজকের বাজার শুরু করুন
+                </Button>
 
-                <!-- Example 3: কাস্টম পার্সেন্টেজ -->
-                <CircularProgressButton label="মোট বিক্রয়" :value="75" :total="100" :percentage="75" />
+                <div class="flex items-center justify-center gap-2 text-gray-700">
+                    <AlertCircle class="h-4 w-4" />
+                    <span>গত সপ্তাহে পেঁয়াজ শেষ হয়েছিল, আজ নেবেন?</span>
+                </div>
+
+                <p>আরো বাজারে যুক্ত করতে পারেন</p>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <Button v-for="item in quickAddItems" :key="item.name" variant="outline"
+                        class="h-auto py-3 flex items-center justify-center gap-2">
+                        <component :is="item.icon" class="h-4 w-4" />
+                        <span>{{ item.name }}</span>
+                    </Button>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 text-gray-700">
+                    <TrendingUp class="h-4 w-4" />
+                    <p>এই মাসে মোট খরচ ৳১২,৫০০ — তেল ও দুধে বেশি ব্যয়।</p>
+                </div>
             </div>
         </div>
     </AppLayout>
