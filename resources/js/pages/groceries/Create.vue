@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import InputError from '@/components/InputError.vue';
+import Input from '@/components/ui/input/Input.vue';
+import Label from '@/components/ui/label/Label.vue';
 import { Head } from '@inertiajs/vue3';
 import { ChevronLeft, Mic, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+
 
 interface ShoppingItem {
     id: number;
@@ -53,6 +57,14 @@ const incrementItem = (id: number) => {
             <p class="text-sm text-gray-400 mt-1">{{ location }}</p>
         </div>
 
+        <div class="px-4 py-4 border-t border-gray-100">
+            <div class="grid gap-2">
+                <Label for="search">প্রয়োজনীয় আইটেম যোগ করুন</Label>
+                <Input id="search" type="search" name="search" placeholder="Search..." />
+                <InputError />
+            </div>
+        </div>
+
         <!-- AI Toggle -->
         <div class="px-4 py-3 flex items-center justify-between border-b border-gray-100">
             <span class="text-gray-700">AI সাহায্যে খুঁজে দেখুন</span>
@@ -95,18 +107,6 @@ const incrementItem = (id: number) => {
             </div>
         </div>
 
-        <!-- Bottom Section -->
-        <div class="px-4 py-4 border-t border-gray-100">
-            <h3 class="text-base font-semibold text-gray-800 mb-2">প্রয়োজনীয় আইটেম যোগ করুন</h3>
-            <div class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-                পণ্যের নাম
-            </div>
-        </div>
 
-        <!-- Floating Action Button -->
-        <button @click="addItem"
-            class="fixed bottom-8 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white transition-all active:scale-95">
-            <Plus :size="28" :stroke-width="3" />
-        </button>
     </div>
 </template>
