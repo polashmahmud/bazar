@@ -12,99 +12,51 @@ import { LoaderCircle } from 'lucide-vue-next';
 </script>
 
 <template>
-    <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
-    >
-        <Head title="Register" />
+    <AuthBase title="একটি অ্যাকাউন্ট তৈরি করুন" description="আপনার অ্যাকাউন্ট তৈরি করতে নিচে আপনার তথ্য লিখুন">
 
-        <Form
-            v-bind="RegisteredUserController.store.form()"
-            :reset-on-success="['password', 'password_confirmation']"
-            v-slot="{ errors, processing }"
-            class="flex flex-col gap-6"
-        >
+        <Head title="নিবন্ধন" />
+
+        <Form v-bind="RegisteredUserController.store.form()" :reset-on-success="['password', 'password_confirmation']"
+            v-slot="{ errors, processing }" class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input
-                        id="name"
-                        type="text"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="name"
-                        name="name"
-                        placeholder="Full name"
-                    />
+                    <Label for="name">নাম</Label>
+                    <Input id="name" type="text" required autofocus :tabindex="1" autocomplete="name" name="name"
+                        placeholder="পূর্ণ নাম" />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        :tabindex="2"
-                        autocomplete="email"
-                        name="email"
-                        placeholder="email@example.com"
-                    />
+                    <Label for="email">ইমেইল ঠিকানা</Label>
+                    <Input id="email" type="email" required :tabindex="2" autocomplete="email" name="email"
+                        placeholder="email@example.com" />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="3"
-                        autocomplete="new-password"
-                        name="password"
-                        placeholder="Password"
-                    />
+                    <Label for="password">পাসওয়ার্ড</Label>
+                    <Input id="password" type="password" required :tabindex="3" autocomplete="new-password"
+                        name="password" placeholder="পাসওয়ার্ড" />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        required
-                        :tabindex="4"
-                        autocomplete="new-password"
-                        name="password_confirmation"
-                        placeholder="Confirm password"
-                    />
+                    <Label for="password_confirmation">পাসওয়ার্ড নিশ্চিত করুন</Label>
+                    <Input id="password_confirmation" type="password" required :tabindex="4" autocomplete="new-password"
+                        name="password_confirmation" placeholder="পাসওয়ার্ড নিশ্চিত করুন" />
                     <InputError :message="errors.password_confirmation" />
                 </div>
 
-                <Button
-                    type="submit"
-                    class="mt-2 w-full"
-                    tabindex="5"
-                    :disabled="processing"
-                    data-test="register-user-button"
-                >
-                    <LoaderCircle
-                        v-if="processing"
-                        class="h-4 w-4 animate-spin"
-                    />
-                    Create account
+                <Button type="submit" class="mt-2 w-full" tabindex="5" :disabled="processing"
+                    data-test="register-user-button">
+                    <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
+                    অ্যাকাউন্ট তৈরি করুন
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
-                <TextLink
-                    :href="login()"
-                    class="underline underline-offset-4"
-                    :tabindex="6"
-                    >Log in</TextLink
-                >
+                ইতিমধ্যে একটি অ্যাকাউন্ট আছে?
+                <TextLink :href="login()" class="underline underline-offset-4" :tabindex="6">লগইন করুন</TextLink>
             </div>
         </Form>
     </AuthBase>
