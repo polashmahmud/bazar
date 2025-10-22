@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { ChevronLeft, Mic, ShoppingCart, AlertCircle, TrendingUp, Apple, Salad, Cherry, Flame } from 'lucide-vue-next';
+import { ShoppingCart, AlertCircle, TrendingUp, Apple, Salad, Cherry, Flame, Plus } from 'lucide-vue-next';
 import CircularProgressButton from '@/components/CircularProgressButton.vue';
 import { Button } from '@/components/ui/button';
 
@@ -19,15 +19,12 @@ const quickAddItems = [
     <div class="min-h-screen bg-white">
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-            <!-- <button class="text-green-600 p-1">
-                <ChevronLeft :size="24" />
-            </button> -->
             <h1 class="text-lg font-medium text-gray-800">
                 বাজার ড্যাশবোর্ড
             </h1>
-            <button class="text-green-600 p-1">
-                <Mic :size="24" />
-            </button>
+            <Button @click="$inertia.visit('/groceries')" variant="ghost">
+                <Plus :size="24" />
+            </Button>
         </div>
 
         <!-- Content -->
