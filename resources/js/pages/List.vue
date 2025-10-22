@@ -11,13 +11,13 @@ interface ListItem {
 }
 
 const items = ref<ListItem[]>([
-    { id: 1, title: 'চশি পণ্যাজ', amount: '2000.000', checked: false },
-    { id: 2, title: 'আত', amount: '18.00.000', checked: true },
-    { id: 3, title: 'মাছ ও মাংস', amount: '3600.000', checked: true },
-    { id: 4, title: 'ডিম-মাখ', amount: '1500.000', checked: true },
-    { id: 5, title: 'ডালনির মুনরি', amount: '2400.000', checked: true },
-    { id: 6, title: 'ঢাল ও দাল', amount: '1300.000', checked: true },
-    { id: 7, title: 'রাজিক্সমান হাল', amount: '2500.000', checked: false },
+    { id: 1, title: 'তাজা পণ্যাজি', amount: '২০০০.০০০', checked: false },
+    { id: 2, title: 'আটা', amount: '১৮০০.০০০', checked: true },
+    { id: 3, title: 'মাছ ও মাংস', amount: '৩৬০০.০০০', checked: true },
+    { id: 4, title: 'ডিম-দুধ', amount: '১৫০০.০০০', checked: true },
+    { id: 5, title: 'ডালনির মসলা', amount: '২৪০০.০০০', checked: true },
+    { id: 6, title: 'ডাল ও তেল', amount: '১৩০০.০০০', checked: true },
+    { id: 7, title: 'রান্নাঘর সামগ্রী', amount: '২৫০০.০০০', checked: false },
 ]);
 
 const toggleItem = (id: number) => {
@@ -46,13 +46,13 @@ const toggleItem = (id: number) => {
 
         <!-- Date Section -->
         <div class="px-4 py-4 border-b border-gray-100">
-            <h2 class="text-2xl font-bold text-green-600">আজ, 24 আউগউউত</h2>
+            <h2 class="text-2xl font-bold text-green-600">আজ, ২৪ আগস্ট</h2>
         </div>
 
         <!-- Location -->
         <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span class="text-gray-800 font-medium">শাফকবাজা</span>
-            <span class="text-gray-400 text-sm">ইয়াবত পক্ষন</span>
+            <span class="text-gray-800 font-medium">শাহবাগ বাজার</span>
+            <span class="text-gray-400 text-sm">স্থান পরিবর্তন</span>
         </div>
 
         <!-- List Items -->
