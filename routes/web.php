@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroceryIndexController;
+use App\Http\Controllers\GrocerySearchController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -11,6 +12,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/groceries', GroceryIndexController::class)->name('groceries.index');
+    Route::get('/grocery-search', GrocerySearchController::class)->name('grocery.search');
 });
 
 Route::get('/lists', function () {
