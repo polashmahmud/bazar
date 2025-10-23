@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroceryIndexController;
+use App\Http\Controllers\GroceryListController;
 use App\Http\Controllers\GrocerySearchController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -11,8 +12,9 @@ Route::get('/', HomeController::class)->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::get('/groceries', GroceryIndexController::class)->name('groceries.index');
-    Route::get('/grocery-search', GrocerySearchController::class)->name('grocery.search');
+    Route::get('/groceries', GroceryIndexController::class);
+    Route::get('/groceries-list', GroceryListController::class);
+    Route::get('/grocery-search', GrocerySearchController::class);
 });
 
 Route::get('/lists', function () {

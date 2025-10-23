@@ -34,7 +34,7 @@ const quickAddItems = [
             </div>
 
             <div class="space-y-6 text-center">
-                <Button variant="outline" class="w-full">
+                <Button variant="outline" class="w-full" @click="$inertia.visit('/groceries-list')">
                     <ShoppingCart class="mr-2 h-4 w-4" />
                     আজকের বাজার শুরু করুন
                 </Button>
