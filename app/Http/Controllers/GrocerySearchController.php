@@ -16,7 +16,7 @@ class GrocerySearchController extends Controller
         $query = $request->input('query', '');
 
         $groceryItems = GroceryItem::search($query)
-            ->limit(20)
+            ->limit(10)
             ->get();
 
         return GroceryItemResource::collection($groceryItems);
