@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import GrocerySearch from '@/components/groceries/GrocerySearch.vue';
 import { Head } from '@inertiajs/vue3';
-import { ChevronLeft, Mic, Plus } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ChevronLeft, ShoppingBasket } from 'lucide-vue-next';
 
 interface GroceryItem {
     id: number;
@@ -12,28 +11,7 @@ interface GroceryItem {
     name_en: string;
 }
 
-interface ShoppingItem {
-    id: number;
-    name: string;
-    quantity: string;
-    unit: string;
-    price: string;
-}
-
-const title = ref('নতুন বাজারের তালিকা তৈরি করুন');
-const location = ref('স্থান: পাড়ার বাজার মার্কেট');
-const aiEnabled = ref(true);
-
-const shoppingItems = ref<ShoppingItem[]>([
-    { id: 1, name: 'ডিম (১ ডজন)', quantity: '১', unit: 'ডজন', price: '৳ ১৪৫' },
-    { id: 2, name: 'সয়াবিন তেল', quantity: '', unit: '', price: '৳ ৯০৭' },
-    { id: 3, name: 'সয়াবিন তেল (৫ লিটার)', quantity: '৫', unit: 'লিটার', price: '৳ ৩২৮' },
-    { id: 4, name: 'মুগ ডাল', quantity: '', unit: '', price: '৳ ১২৮' },
-]);
-
-const incrementItem = (id: number) => {
-    console.log('Increment item', id);
-};
+const basketItemCount = 100;
 
 const handleItemSelected = (item: GroceryItem) => {
     console.log('Item selected:', item);
@@ -53,8 +31,12 @@ const handleItemSelected = (item: GroceryItem) => {
                 <ChevronLeft :size="24" />
             </button>
             <h1 class="text-lg font-medium text-gray-800">Smart Bazar</h1>
-            <button class="text-green-600 p-1">
-                <Mic :size="24" />
+            <button class="text-green-600 p-1 relative">
+                <ShoppingBasket :size="24" />
+                <span v-if="basketItemCount > 0"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ basketItemCount }}
+                </span>
             </button>
         </div>
 
