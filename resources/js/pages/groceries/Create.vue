@@ -31,7 +31,7 @@ const handleItemSelected = (item: GroceryItem) => {
                 <ChevronLeft :size="24" />
             </button>
             <h1 class="text-lg font-medium text-gray-800">Smart Bazar</h1>
-            <button class="text-green-600 p-1 relative">
+            <button class="text-green-600 p-1 relative" @click="$inertia.visit('/groceries-list')">
                 <ShoppingBasket :size="24" />
                 <span v-if="basketItemCount > 0"
                     class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

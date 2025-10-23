@@ -35,12 +35,12 @@ const toggleItem = (id: number) => {
     <div class="min-h-screen bg-white">
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-            <button class="text-green-600 p-1">
+            <button class="text-green-600 p-1" @click="$inertia.visit('/dashboard')">
                 <ChevronLeft :size="24" />
             </button>
             <h1 class="text-lg font-medium text-gray-800">Smart Bazar</h1>
-            <button class="text-green-600 p-1">
-                <Mic :size="24" />
+            <button class="text-green-600 p-1" @click="$inertia.visit('groceries')">
+                <Plus :size="24" />
             </button>
         </div>
 
