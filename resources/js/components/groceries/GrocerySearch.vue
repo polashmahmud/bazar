@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Input from '@/components/ui/input/Input.vue';
 import Label from '@/components/ui/label/Label.vue';
-import { Plus, Search } from 'lucide-vue-next';
+import { Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import axios from 'axios';
 
@@ -109,23 +109,21 @@ const selectItem = (item: GroceryItem) => {
             <div v-if="isSearching" class="text-center py-4">
                 <p class="text-sm text-gray-500">খুঁজছি...</p>
             </div>
-            <div v-else-if="searchResults.length > 0" class="space-y-2">
-                <p class="text-sm font-medium text-gray-700 mb-2">সার্চ রেজাল্ট:</p>
-                <div class="max-h-60 overflow-y-auto space-y-2">
-                    <div v-for="item in searchResults" :key="item.id"
-                        class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">{{ item.icon }}</span>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">{{ item.name_bn }}</p>
-                                <p class="text-xs text-gray-500">{{ item.name_bn_en }}</p>
-                            </div>
+            <div v-else-if="searchResults.length > 0">
+                <p class="text-sm font-medium text-gray-700 mb-3">সার্চ রেজাল্ট:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button
+                        v-for="item in searchResults"
+                        :key="item.id"
+                        @click="selectItem(item)"
+                        class="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-500 active:bg-green-100 cursor-pointer transition-all duration-200 text-left"
+                    >
+                        <span class="text-2xl flex-shrink-0">{{ item.icon }}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ item.name_bn }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ item.name_bn_en }}</p>
                         </div>
-                        <button @click="selectItem(item)"
-                            class="w-8 h-8 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-colors active:scale-95">
-                            <Plus :size="16" :stroke-width="3" />
-                        </button>
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
