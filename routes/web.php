@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'ensure.gemini.key.set']], function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/groceries', GroceryIndexController::class);
     Route::get('/groceries-list', GroceryListController::class);
