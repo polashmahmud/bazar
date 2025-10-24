@@ -32,6 +32,7 @@ export interface User {
     email: string;
     avatar?: string;
     email_verified_at: string | null;
+    gemini_api_key?: string | null;
     created_at: string;
     updated_at: string;
 }

@@ -29,4 +29,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings/gemini', [GeminiController::class, 'edit'])->name('settings.gemini');
     Route::post('/settings/gemini', [GeminiController::class, 'update']);
+    Route::delete('/settings/gemini', [GeminiController::class, 'destroy'])->name('settings.gemini.destroy');
 });
