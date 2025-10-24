@@ -20,4 +20,14 @@ class GroceryList extends Model
         'purchased',
         'purchase_date',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(GroceryItem::class, 'grocery_item_id');
+    }
 }

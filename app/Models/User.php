@@ -61,4 +61,9 @@ class User extends Authenticatable
             set: fn ($value) => $value ? Crypt::encryptString($value) : null,
         );
     }
+
+    public function groceryLists()
+    {
+        return $this->hasMany(GroceryList::class);
+    }
 }

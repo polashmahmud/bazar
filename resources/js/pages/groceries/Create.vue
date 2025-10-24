@@ -2,7 +2,7 @@
 import GrocerySearch from '@/components/groceries/GrocerySearch.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ChevronLeft, ShoppingBasket } from 'lucide-vue-next';
-import type { GroceryItem } from '@/types/grocery';
+import type { GroceryItem, GroceryList } from '@/types/grocery';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 
 defineProps<{
     items: GroceryItem[];
+    addedItems: GroceryList[];
 }>();
 
 const basketItemCount = 100;
@@ -75,9 +76,9 @@ const submitForm = () => {
             <h1 class="text-lg font-medium text-gray-800">Smart Bazar</h1>
             <button class="text-green-600 p-1 relative" @click="$inertia.visit('/groceries-list')">
                 <ShoppingBasket :size="24" />
-                <span v-if="basketItemCount > 0"
+                <span v-if="addedItems.length > 0"
                     class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {{ basketItemCount }}
+                    {{ addedItems.length }}
                 </span>
             </button>
         </div>
@@ -95,6 +96,16 @@ const submitForm = () => {
                         <p class="text-xs text-gray-500 truncate">{{ item.name_bn_en }}</p>
                     </div>
                 </button>
+            </div>
+
+            <!-- Added Items Display -->
+            <div v-if="addedItems.length > 0" class="mt-6">
+                <p class="text-xs text-gray-500">
+                    লিস্টে আছে:
+                    <template v-for="(addedItem, index) in addedItems" :key="addedItem.id">
+                        {{ addedItem.item.name_bn }}<span v-if="index < addedItems.length - 1">, </span>
+                    </template>
+                </p>
             </div>
         </div>
 
