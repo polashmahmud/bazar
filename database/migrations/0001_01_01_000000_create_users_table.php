@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('gemini_api_key')->nullable();
+            $table->text('gemini_api_key')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
