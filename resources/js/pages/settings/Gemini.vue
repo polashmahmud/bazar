@@ -11,7 +11,7 @@ const user = computed(() => page.props.auth.user);
 const hasApiKey = computed(() => !!user.value.gemini_api_key);
 
 const submitButtonText = computed(() => {
-    if (form.processing) return 'সংরক্ষণ করা হচ্ছে...';
+    if (form.processing) return 'যাচাই করা হচ্ছে...';
     return hasApiKey.value ? 'API কী আপডেট করুন' : 'API কী সংরক্ষণ করুন';
 });
 
@@ -69,6 +69,9 @@ const deleteApiKey = () => {
                             :disabled="form.processing" required />
                         <p v-if="form.errors.gemini_api_key" class="text-sm text-destructive">
                             {{ form.errors.gemini_api_key }}
+                        </p>
+                        <p v-if="form.processing" class="text-xs text-muted-foreground">
+                            API কী যাচাই করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...
                         </p>
                     </div>
 
