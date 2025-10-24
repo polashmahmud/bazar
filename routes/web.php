@@ -14,6 +14,7 @@ Route::group(['middleware' => ['auth', 'ensure.gemini.key.set']], function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/groceries', GroceryIndexController::class);
     Route::get('/groceries-list', GroceryListController::class);
+    Route::post('/groceries-list', [GroceryListController::class, 'store'])->name('groceries-list.store');
     Route::get('/grocery-search', GrocerySearchController::class);
 });
 
