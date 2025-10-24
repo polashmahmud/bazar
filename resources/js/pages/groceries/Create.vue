@@ -12,8 +12,6 @@ const basketItemCount = 100;
 
 const handleItemSelected = (item: GroceryItem) => {
     console.log('Item selected:', item);
-    // এখানে আপনি selected item দিয়ে যা করতে চান তা করতে পারবেন
-    // যেমন: shopping list এ add করা
 };
 </script>
 
