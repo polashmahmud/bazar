@@ -10,6 +10,11 @@ const user = computed(() => page.props.auth.user);
 
 const hasApiKey = computed(() => !!user.value.gemini_api_key);
 
+const submitButtonText = computed(() => {
+    if (form.processing) return 'সংরক্ষণ করা হচ্ছে...';
+    return hasApiKey.value ? 'API কী আপডেট করুন' : 'API কী সংরক্ষণ করুন';
+});
+
 const form = useForm({
     gemini_api_key: '',
 });
@@ -68,8 +73,7 @@ const deleteApiKey = () => {
                     </div>
 
                     <Button type="submit" class="w-full" :disabled="form.processing">
-                        {{ form.processing ? 'সংরক্ষণ করা হচ্ছে...' : (hasApiKey ? 'API কী আপডেট করুন' : 'API কী সংরক্ষণ
-                        করুন') }}
+                        {{ submitButtonText }}
                     </Button>
                 </form>
 
