@@ -35,6 +35,10 @@ const deleteApiKey = () => {
         });
     }
 };
+
+const goToDashboard = () => {
+    router.visit('/dashboard');
+};
 </script>
 
 <template>
@@ -49,13 +53,19 @@ const deleteApiKey = () => {
                 </div>
 
                 <!-- API Key Status -->
-                <div v-if="hasApiKey" class="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
-                    <div class="space-y-1">
-                        <p class="text-sm font-medium">API কী সেট করা আছে</p>
-                        <p class="text-xs text-muted-foreground">আপনার API কী সক্রিয় এবং সুরক্ষিত আছে</p>
+                <div v-if="hasApiKey" class="space-y-4">
+                    <div class="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                        <div class="space-y-1">
+                            <p class="text-sm font-medium">API কী সেট করা আছে</p>
+                            <p class="text-xs text-muted-foreground">আপনার API কী সক্রিয় এবং সুরক্ষিত আছে</p>
+                        </div>
+                        <Button variant="destructive" size="sm" @click="deleteApiKey">
+                            মুছে ফেলুন
+                        </Button>
                     </div>
-                    <Button variant="destructive" size="sm" @click="deleteApiKey">
-                        মুছে ফেলুন
+
+                    <Button @click="goToDashboard" class="w-full" variant="outline">
+                        ডেশবোর্ডে যান
                     </Button>
                 </div>
 
