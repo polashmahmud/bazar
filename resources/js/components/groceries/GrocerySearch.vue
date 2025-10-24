@@ -4,14 +4,7 @@ import Label from '@/components/ui/label/Label.vue';
 import { Search } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 import axios from 'axios';
-
-interface GroceryItem {
-    id: number;
-    icon: string;
-    name_bn: string;
-    name_bn_en: string;
-    name_en: string;
-}
+import type { GroceryItem } from '@/types/grocery';
 
 const emit = defineEmits<{
     itemSelected: [item: GroceryItem]
@@ -48,10 +41,11 @@ watch(searchQuery, (newQuery) => {
                 query: newQuery,
             },
         }).then(response => {
-            searchResults.value = response.data.data;
+            searchResults.value = response.data || [];
             isSearching.value = false;
         }).catch(error => {
             console.error('There was an error!', error);
+            searchResults.value = [];
             isSearching.value = false;
         });
     }, 500);
@@ -105,11 +99,11 @@ const selectItem = (item: GroceryItem) => {
         </div>
 
         <!-- Search Results -->
-        <div v-if="isSearching || searchResults.length > 0" class="mt-4">
+        <div v-if="isSearching || (searchResults && searchResults.length > 0)" class="mt-4">
             <div v-if="isSearching" class="text-center py-4">
                 <p class="text-sm text-gray-500">খুঁজছি...</p>
             </div>
-            <div v-else-if="searchResults.length > 0">
+            <div v-else-if="searchResults && searchResults.length > 0">
                 <p class="text-sm font-medium text-gray-700 mb-3">সার্চ রেজাল্ট:</p>
                 <div class="grid grid-cols-2 gap-3">
                     <button v-for="item in searchResults" :key="item.id" @click="selectItem(item)"
