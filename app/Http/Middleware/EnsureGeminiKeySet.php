@@ -26,8 +26,8 @@ class EnsureGeminiKeySet
             if (! $request->is('settings/gemini')) {
                 return redirect()->route('settings.gemini')->with('warning', 'Please set your Gemini API key to access this feature.');
             }
-
-            return $next($request);
         }
+
+        return $next($request);
     }
 }
