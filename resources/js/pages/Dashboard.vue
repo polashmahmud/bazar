@@ -46,28 +46,29 @@ const expenseMessage = () => {
                 <CircularProgressButton :items="items" />
             </div>
 
-            <!-- <div class="space-y-6 text-center">
-                <div v-if="stats.lastWeekFinishedItem"
-                    class="flex items-center justify-center gap-2 text-gray-700 text-sm">
+            <div class="space-y-6 text-center">
+                <div class="flex items-center justify-center gap-2 text-gray-700 text-sm">
                     <AlertCircle class="h-4 w-4" />
-                    <span>গত সপ্তাহে {{ stats.lastWeekFinishedItem }} শেষ হয়েছিল, আজ নেবেন?</span>
+                    <span>গত সপ্তাহে Alu শেষ হয়েছিল, আজ নেবেন?</span>
                 </div>
 
                 <p class="text-sm text-gray-600">আরো বাজারে যুক্ত করতে পারেন</p>
 
                 <div class="grid grid-cols-2 gap-4 mt-4">
-                    <Button v-for="item in quickAddItems" :key="item.name" variant="outline"
+                    <Button v-for="(item, index) in 4" :key="index" variant="outline"
                         class="h-auto py-3 flex items-center justify-center gap-2">
-                        <component :is="item.icon" class="h-4 w-4" />
-                        <span>{{ item.name }}</span>
+                        <!-- <component :is="item.icon" class="h-4 w-4" /> -->
+                        <span>alu</span>
                     </Button>
                 </div>
 
                 <div class="flex items-center justify-center gap-2 text-gray-700 text-sm">
                     <TrendingUp class="h-4 w-4" />
-                    <p>{{ expenseMessage() }}</p>
+                    <p>
+                        এই মাসে আপনার মোট খরচ হয়েছে ৳ ১,২০০। গত মাসের তুলনায় ১৫% বেশি।
+                    </p>
                 </div>
-            </div> -->
+            </div>
 
         </div>
     </AppLayout>
