@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GroceryIndexController;
 use App\Http\Controllers\GroceryListController;
+use App\Http\Controllers\GroceryListPriceUpdateController;
 use App\Http\Controllers\GrocerySearchController;
 use App\Http\Controllers\HomeController;
 use Gemini\Laravel\Facades\Gemini;
@@ -17,6 +18,7 @@ Route::group(['middleware' => ['auth', 'ensure.gemini.key.set']], function () {
     Route::post('/groceries-list', [GroceryListController::class, 'store']);
     Route::post('/groceries/{id}/purchase', [GroceryListController::class, 'purchase']);
     Route::get('/grocery-search', GrocerySearchController::class);
+    Route::post('/groceries-price-update', GroceryListPriceUpdateController::class);
 });
 
 Route::get('/lists', function () {
