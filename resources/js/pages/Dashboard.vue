@@ -5,21 +5,12 @@ import CircularProgressButton from '@/components/CircularProgressButton.vue';
 import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { GroceryList } from '@/types/grocery';
 
-interface Stats {
-    totalItems: number;
-    purchasedItems: number;
-    remainingItems: number;
-    monthlyExpense: string;
-    topExpenseItems: Array<{ name: string; total: number }>;
-    lastWeekFinishedItem: string | null;
-}
 
-interface Props {
-    stats: Stats;
-}
-
-const props = defineProps<Props>();
+defineProps<{
+    items: GroceryList[];
+}>()
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -37,11 +28,7 @@ const quickAddItems = [
 
 // Format expense message
 const expenseMessage = () => {
-    if (props.stats.topExpenseItems.length === 0) {
-        return `এই মাসে মোট খরচ ৳${props.stats.monthlyExpense}`;
-    }
-    const topItems = props.stats.topExpenseItems.map(item => item.name).join(' ও ');
-    return `এই মাসে মোট খরচ ৳${props.stats.monthlyExpense} — ${topItems}তে বেশি ব্যয়।`;
+    //
 };
 
 </script>
@@ -56,11 +43,10 @@ const expenseMessage = () => {
             <!-- Content -->
 
             <div class="flex items-center justify-center">
-                <CircularProgressButton label="আজকের বাজার তালিকা" :value="stats.purchasedItems"
-                    :total="stats.totalItems" />
+                <CircularProgressButton :items="items" />
             </div>
 
-            <div class="space-y-6 text-center">
+            <!-- <div class="space-y-6 text-center">
                 <div v-if="stats.lastWeekFinishedItem"
                     class="flex items-center justify-center gap-2 text-gray-700 text-sm">
                     <AlertCircle class="h-4 w-4" />
@@ -81,7 +67,7 @@ const expenseMessage = () => {
                     <TrendingUp class="h-4 w-4" />
                     <p>{{ expenseMessage() }}</p>
                 </div>
-            </div>
+            </div> -->
 
         </div>
     </AppLayout>

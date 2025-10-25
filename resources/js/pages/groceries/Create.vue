@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import GrocerySearch from '@/components/groceries/GrocerySearch.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ChevronLeft, ShoppingBasket } from 'lucide-vue-next';
 import type { GroceryItem, GroceryList } from '@/types/grocery';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
