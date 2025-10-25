@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
+import { useBanglaDate } from '@/composables/useBanglaDate';
 
 const page = usePage();
+const { getTodayInBangla } = useBanglaDate();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -96,7 +98,9 @@ watch(
                     <!-- Header Title & Button -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">আজ, ২৪ আগস্ট</h1>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{{
+                                getTodayInBangla() }}
+                            </h1>
                             <p class="text-sm text-gray-500 mt-1">বাজারের তালিকা</p>
                         </div>
                         <Button @click="$inertia.post('/groceries-price-update')"
