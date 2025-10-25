@@ -62,23 +62,24 @@ const activeItemStyles = computed(
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'ড্যাশবোর্ড',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'বাজার যুক্ত করুন',
+        href: '/groceries',
+        icon: BookOpen,
+    },
+    {
+        title: 'বাজার তালিকা',
+        href: '/groceries-list',
+        icon: Folder,
     },
 ];
 
 const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
+    //
 ];
 </script>
 
@@ -122,7 +123,8 @@ const rightNavItems: NavItem[] = [
                 </div>
 
                 <Link :href="dashboard()" class="flex items-center gap-x-2">
-                <AppLogo />
+                <img src="/android-chrome-192x192.png" alt="logo" class="h-8 w-8 rounded-md" />
+                <!-- <AppLogo /> -->
                 </Link>
 
                 <!-- Desktop Menu -->
@@ -169,7 +171,7 @@ const rightNavItems: NavItem[] = [
                                                 <a :href="toUrl(item.href)" target="_blank" rel="noopener noreferrer">
                                                     <span class="sr-only">{{
                                                         item.title
-                                                        }}</span>
+                                                    }}</span>
                                                     <component :is="item.icon"
                                                         class="size-5 opacity-80 group-hover:opacity-100" />
                                                 </a>
