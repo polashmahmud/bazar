@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GroceryItem extends Model
 {
@@ -17,6 +18,14 @@ class GroceryItem extends Model
         'name_bn_en',
         'name_en',
     ];
+
+    /**
+     * Get all daily prices for this grocery item.
+     */
+    public function dailyPrices(): HasMany
+    {
+        return $this->hasMany(DailyItemPrice::class);
+    }
 
     /**
      * Scope a query to search grocery items.
