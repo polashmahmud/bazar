@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GroceryListResource;
 use App\Models\GroceryList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,9 +13,19 @@ class GroceryListController extends Controller
     /**
      * Display the grocery list.
      */
-    public function __invoke(Request $request)
+    public function index(Request $request)
     {
-        return Inertia::render('groceries/List');
+        $items = GroceryListResource::collection(
+            $request->user()
+                ->groceryLists()
+                ->with('item')
+                ->orderBy('purchased')
+                ->get()
+        );
+
+        return Inertia::render('groceries/List', [
+            'items' => $items,
+        ]);
     }
 
     /**
@@ -51,5 +62,17 @@ class GroceryListController extends Controller
         $groceryList->delete();
 
         return redirect()->back()->with('success', 'আইটেম মুছে ফেলা হয়েছে!');
+    }
+
+    /**
+     * Mark an item as purchased.
+     */
+    public function purchase($id)
+    {
+        $item = GroceryList::findOrFail($id);
+        $item->purchased = ! $item->purchased;
+        $item->save();
+
+        return back();
     }
 }
