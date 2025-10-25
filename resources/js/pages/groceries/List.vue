@@ -8,10 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
-import { useBanglaDate } from '@/composables/useBanglaDate';
-
-const page = usePage();
-const { getTodayInBangla } = useBanglaDate();
+import { useBanglaDate } from "@polashmahmud/bangla-date-utils";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,6 +24,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 defineProps<{
     items: GroceryList[];
 }>();
+
+const page = usePage();
+const { getTodayInBangla } = useBanglaDate();
 
 const showSuccess = ref(false);
 const showError = ref(false);
@@ -98,7 +98,7 @@ watch(
                     <!-- Header Title & Button -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{{
+                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">আজ, {{
                                 getTodayInBangla() }}
                             </h1>
                             <p class="text-sm text-gray-500 mt-1">বাজারের তালিকা</p>
