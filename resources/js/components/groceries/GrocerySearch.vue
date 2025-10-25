@@ -65,7 +65,7 @@ const selectItem = (item: GroceryItem) => {
 </script>
 
 <template>
-    <div class="px-4 py-4 border-t border-gray-100">
+    <div>
         <div class="grid gap-2">
             <Label for="search">প্রয়োজনীয় আইটেম যোগ করুন</Label>
             <div class="relative w-full max-w-full items-center">

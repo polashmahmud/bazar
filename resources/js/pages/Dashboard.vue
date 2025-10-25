@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { ShoppingCart, AlertCircle, TrendingUp, Apple, Salad, Cherry, Flame, Plus } from 'lucide-vue-next';
+import { AlertCircle, TrendingUp, Apple, Salad, Cherry, Flame } from 'lucide-vue-next';
 import CircularProgressButton from '@/components/CircularProgressButton.vue';
 import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
