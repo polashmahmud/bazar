@@ -31,60 +31,110 @@ const deleteItem = () => {
 </script>
 
 <template>
-    <div class="group hover:bg-gray-50 transition-colors rounded-lg">
-        <div class="flex items-center justify-between py-4 px-3 border-b border-gray-100">
-            <button @click="toggleItem" class="flex items-center gap-4 flex-1">
-                <!-- Checkbox/Status Indicator -->
-                <div class="flex-shrink-0">
-                    <div class="w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all shadow-sm"
-                        :class="item.purchased ? 'bg-green-500 border-green-500' : 'bg-white border-gray-300 group-hover:border-gray-400'">
-                        <svg v-if="item.purchased" class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+    <!-- Mobile View -->
+    <div class="sm:hidden group hover:bg-gray-50 transition-all duration-150">
+        <div class="flex items-start gap-3 px-4 py-4">
+            <!-- Checkbox -->
+            <button @click="toggleItem" class="flex-shrink-0 mt-0.5">
+                <div class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
+                    :class="item.purchased 
+                        ? 'bg-gray-900 border-gray-900' 
+                        : 'bg-white border-gray-300 group-hover:border-gray-400'">
+                    <svg v-if="item.purchased" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </button>
+
+            <!-- Item Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-start gap-2">
+                    <span class="text-2xl flex-shrink-0">{{ item.item.icon }}</span>
+
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-sm font-semibold transition-all duration-200"
+                            :class="item.purchased ? 'text-gray-400 line-through' : 'text-gray-900'">
+                            {{ item.item.name_bn }}
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ item.item.name_en }}</p>
+                        
+                        <div v-if="item.price && item.total_price" class="mt-2">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="font-medium">{{ item.quantity }} {{ item.unit }}</span>
+                                <span>×</span>
+                                <span>৳{{ Number(item.price).toFixed(2) }}</span>
+                                <span>=</span>
+                                <span class="font-bold text-gray-900">৳{{ Number(item.total_price).toFixed(2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="deleteItem" :disabled="isDeleting"
+                class="flex-shrink-0 p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all duration-150 disabled:opacity-30"
+                title="মুছে ফেলুন">
+                <Trash2 class="w-4 h-4" />
+            </button>
+        </div>
+    </div>
+
+    <!-- Desktop View -->
+    <div class="hidden sm:block group hover:bg-gray-50 transition-all duration-150">
+        <div class="flex items-center px-6 py-4">
+            <!-- Checkbox + Icon + Name (40%) -->
+            <div class="flex items-center gap-4 flex-1 min-w-0" style="flex: 0 0 40%;">
+                <button @click="toggleItem" class="flex-shrink-0">
+                    <div class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
+                        :class="item.purchased 
+                            ? 'bg-gray-900 border-gray-900' 
+                            : 'bg-white border-gray-300 group-hover:border-gray-400'">
+                        <svg v-if="item.purchased" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
+                </button>
+
+                <span class="text-3xl flex-shrink-0">{{ item.item.icon }}</span>
+
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-base font-semibold transition-all duration-200 truncate"
+                        :class="item.purchased ? 'text-gray-400 line-through' : 'text-gray-900'">
+                        {{ item.item.name_bn }}
+                    </h3>
+                    <p class="text-xs text-gray-400 truncate">{{ item.item.name_en }}</p>
                 </div>
+            </div>
 
-                <!-- Item Info -->
-                <div class="flex items-center gap-3 flex-1">
-                    <!-- Icon -->
-                    <span class="text-2xl flex-shrink-0">{{ item.item.icon }}</span>
+            <!-- Quantity (15%) -->
+            <div class="text-center" style="flex: 0 0 15%;">
+                <div class="text-sm font-medium text-gray-900">{{ item.quantity }} {{ item.unit }}</div>
+            </div>
 
-                    <!-- Name -->
-                    <div class="flex flex-col">
-                        <span class="text-base font-semibold transition-all"
-                            :class="item.purchased ? 'text-green-600 line-through' : 'text-gray-800'">
-                            {{ item.item.name_bn }}
-                        </span>
-                        <span class="text-xs text-gray-500">{{ item.item.name_en }}</span>
-                    </div>
+            <!-- Unit Price (15%) -->
+            <div class="text-center" style="flex: 0 0 15%;">
+                <div v-if="item.price" class="text-sm text-gray-600">
+                    × ৳{{ Number(item.price).toFixed(2) }}
                 </div>
-            </button>
+                <div v-else class="text-sm text-gray-400">-</div>
+            </div>
 
-            <!-- Quantity & Price -->
-            <div class="flex items-center gap-6 ml-4">
-                <!-- Quantity -->
-                <div class="text-right">
-                    <div class="text-sm font-medium text-gray-700">
-                        {{ item.quantity }} {{ item.unit }}
-                    </div>
+            <!-- Total Price (20%) -->
+            <div class="text-right" style="flex: 0 0 20%;">
+                <div v-if="item.total_price" class="text-base font-bold text-gray-900">
+                    = ৳{{ Number(item.total_price).toFixed(2) }}
                 </div>
+                <div v-else class="text-sm text-gray-400">-</div>
+            </div>
 
-                <!-- Price (if available) -->
-                <div v-if="item.price || item.total_price" class="text-right min-w-[80px]">
-                    <div v-if="item.total_price" class="text-base font-bold text-gray-900">
-                        ৳{{ Number(item.total_price).toFixed(2) }}
-                    </div>
-                    <div v-else-if="item.price" class="text-sm text-gray-600">
-                        ৳{{ Number(item.price).toFixed(2) }}/{{ item.unit }}
-                    </div>
-                </div>
-
-                <!-- Delete Button -->
+            <!-- Delete Button (10%) -->
+            <div class="flex justify-end" style="flex: 0 0 10%;">
                 <button @click="deleteItem" :disabled="isDeleting"
-                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    class="p-2 text-gray-300 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-all duration-150 disabled:opacity-30"
                     title="মুছে ফেলুন">
-                    <Trash2 class="w-5 h-5" />
+                    <Trash2 class="w-4 h-4" />
                 </button>
             </div>
         </div>
