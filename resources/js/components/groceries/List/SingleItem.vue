@@ -1,16 +1,32 @@
 <script setup lang="ts">
 import { type GroceryList } from '@/types/grocery';
 import { router } from '@inertiajs/vue3';
+import { Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps<{
     item: GroceryList;
 }>();
+
+const isDeleting = ref(false);
 
 const toggleItem = () => {
     router.post(`/groceries/${props.item.id}/purchase`, {}, {
         preserveScroll: true,
         preserveState: true,
     });
+};
+
+const deleteItem = () => {
+    if (confirm(`আপনি কি "${props.item.item.name_bn}" মুছে ফেলতে চান?`)) {
+        isDeleting.value = true;
+        router.delete(`/groceries-list/${props.item.id}`, {
+            preserveScroll: true,
+            onFinish: () => {
+                isDeleting.value = false;
+            },
+        });
+    }
 };
 </script>
 
@@ -63,6 +79,13 @@ const toggleItem = () => {
                         ৳{{ Number(item.price).toFixed(2) }}/{{ item.unit }}
                     </div>
                 </div>
+
+                <!-- Delete Button -->
+                <button @click="deleteItem" :disabled="isDeleting"
+                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    title="মুছে ফেলুন">
+                    <Trash2 class="w-5 h-5" />
+                </button>
             </div>
         </div>
     </div>

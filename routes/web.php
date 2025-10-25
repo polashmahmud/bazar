@@ -16,6 +16,7 @@ Route::group(['middleware' => ['auth', 'ensure.gemini.key.set']], function () {
     Route::get('/groceries', GroceryIndexController::class);
     Route::get('/groceries-list', [GroceryListController::class, 'index']);
     Route::post('/groceries-list', [GroceryListController::class, 'store']);
+    Route::delete('/groceries-list/{groceryList}', [GroceryListController::class, 'destroy']);
     Route::post('/groceries/{id}/purchase', [GroceryListController::class, 'purchase']);
     Route::get('/grocery-search', GrocerySearchController::class);
     Route::post('/groceries-price-update', GroceryListPriceUpdateController::class);

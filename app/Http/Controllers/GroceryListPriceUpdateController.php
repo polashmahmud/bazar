@@ -66,6 +66,7 @@ Return only the JSON array, no additional text or explanation.';
                     if (isset($priceData['id'], $priceData['price'])) {
                         $groceryList = $items->firstWhere('id', $priceData['id']);
                         if ($groceryList) {
+                            // Only update price, total_price is auto-calculated as virtual column
                             $groceryList->price = $priceData['price'];
                             $groceryList->save();
                         }

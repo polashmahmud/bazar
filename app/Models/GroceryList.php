@@ -16,7 +16,6 @@ class GroceryList extends Model
         'quantity',
         'unit',
         'price',
-        'total_price',
         'purchased',
         'purchase_date',
     ];
