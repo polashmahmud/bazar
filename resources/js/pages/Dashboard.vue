@@ -6,6 +6,21 @@ import { Button } from '@/components/ui/button';
 import { type BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/AppLayout.vue';
 
+interface Stats {
+    totalItems: number;
+    purchasedItems: number;
+    remainingItems: number;
+    monthlyExpense: string;
+    topExpenseItems: Array<{ name: string; total: number }>;
+    lastWeekFinishedItem: string | null;
+}
+
+interface Props {
+    stats: Stats;
+}
+
+const props = defineProps<Props>();
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -19,6 +34,16 @@ const quickAddItems = [
     { name: 'টমেটো', icon: Cherry },
     { name: 'মরিচ', icon: Flame },
 ];
+
+// Format expense message
+const expenseMessage = () => {
+    if (props.stats.topExpenseItems.length === 0) {
+        return `এই মাসে মোট খরচ ৳${props.stats.monthlyExpense}`;
+    }
+    const topItems = props.stats.topExpenseItems.map(item => item.name).join(' ও ');
+    return `এই মাসে মোট খরচ ৳${props.stats.monthlyExpense} — ${topItems}তে বেশি ব্যয়।`;
+};
+
 </script>
 
 <template>
@@ -31,13 +56,15 @@ const quickAddItems = [
             <!-- Content -->
 
             <div class="flex items-center justify-center">
-                <CircularProgressButton label="আজকের বাজার তালিকা" :value="15" :total="20" />
+                <CircularProgressButton label="আজকের বাজার তালিকা" :value="stats.purchasedItems"
+                    :total="stats.totalItems" />
             </div>
 
             <div class="space-y-6 text-center">
-                <div class="flex items-center justify-center gap-2 text-gray-700 text-sm">
+                <div v-if="stats.lastWeekFinishedItem"
+                    class="flex items-center justify-center gap-2 text-gray-700 text-sm">
                     <AlertCircle class="h-4 w-4" />
-                    <span>গত সপ্তাহে পেঁয়াজ শেষ হয়েছিল, আজ নেবেন?</span>
+                    <span>গত সপ্তাহে {{ stats.lastWeekFinishedItem }} শেষ হয়েছিল, আজ নেবেন?</span>
                 </div>
 
                 <p class="text-sm text-gray-600">আরো বাজারে যুক্ত করতে পারেন</p>
@@ -52,7 +79,7 @@ const quickAddItems = [
 
                 <div class="flex items-center justify-center gap-2 text-gray-700 text-sm">
                     <TrendingUp class="h-4 w-4" />
-                    <p>এই মাসে মোট খরচ ৳১২,৫০০ — তেল ও দুধে বেশি ব্যয়।</p>
+                    <p>{{ expenseMessage() }}</p>
                 </div>
             </div>
 
